@@ -18,8 +18,9 @@
             background-image: url('https://www.transparenttextures.com/patterns/stardust.png'), linear-gradient(to bottom, #0f172a, #1e293b);
             color: #e2e8f0;
             font-weight: 700;
-            font-size: 1.1rem;
+            font-size: 1.15rem; /* Font size slightly increased */
             overflow: hidden; /* Prevent scrolling */
+            text-shadow: 0px 0px 1px rgba(226, 232, 240, 0.2); /* Added subtle shadow for boldness */
         }
         .font-title {
             font-family: 'Cute Font', cursive;
@@ -62,9 +63,9 @@
         .recipe-card.possible { border-color: #f59e0b; box-shadow: 0 0 15px #f59e0b; cursor: pointer; animation: glow 1.5s infinite; }
         .recipe-card.possible:hover { transform: scale(1.05); background: linear-gradient(to bottom, #fcd34d, #fbbf24); }
         .recipe-card .recipe-name { font-family: 'Cute Font', cursive; font-size: 1.6rem; line-height: 1.1; color: #7e22ce;}
-        .recipe-card .recipe-details { font-size: 0.8rem; }
+        .recipe-card .recipe-details { font-size: 0.8rem; font-weight: 700;}
         .recipe-card .recipe-points { font-family: 'Cute Font', cursive; font-size: 1.4rem; color: #1d4ed8;}
-        .recipe-card .flavor-text { font-size: 0.7rem; font-style: italic; margin-top: 4px; color: #581c87; opacity: 0.8; }
+        .recipe-card .flavor-text { font-size: 0.7rem; font-style: italic; margin-top: 4px; color: #581c87; opacity: 0.8; font-weight: 700;}
 
         .game-board { display: flex; flex-direction: column; height: 100vh; padding: 8px; width: 100%; max-width: 1400px; margin: 0 auto; }
         .player-area { flex-shrink: 0; display: flex; justify-content: center; align-items: center; gap: 10px; padding: 8px; min-height: 180px; }
