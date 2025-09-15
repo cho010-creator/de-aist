@@ -606,8 +606,9 @@
                 // 리포트 생성 모듈
                 reporting: {
                     generateReport: (stats) => {
-                        const { vulnerableRegion, vulnerableRegionInfo } = stats;
-                        const contact = App.constants.DISASTER_CONTACTS[vulnerableRegion];
+                        const vulnerableRegion = stats["가장 취약한 지역"];
+                        const vulnerableRegionInfo = stats["가장 취약한 지역 정보"];
+                        const contact = vulnerableRegion ? App.constants.DISASTER_CONTACTS[vulnerableRegion] : null;
                         
                         let reportHTML = `
                             <p><strong>시나리오:</strong> ${App.elements.scenarioSelect.options[App.elements.scenarioSelect.selectedIndex].text}</p>
@@ -617,7 +618,7 @@
                             <h3 class="text-lg font-bold">주요 결과 요약</h3>
                             <ul class="list-disc list-inside">
                                 <li><strong>총 예상 피해 인구:</strong> ${stats["총 예상 피해 인구"].toLocaleString()}명</li>
-                                <li><strong>가장 취약한 지역:</strong> ${vulnerableRegion} (평균 ${vulnerableRegionInfo.avg_casualties.toLocaleString()}명 피해)</li>
+                                <li><strong>가장 취약한 지역:</strong> ${vulnerableRegion} ${vulnerableRegionInfo ? `(평균 ${vulnerableRegionInfo.avg_casualties.toLocaleString()}명 피해)` : ''}</li>
                                 <li><strong>최대 수요 물품:</strong> ${stats["최대 구호 물품"]} (최대 ${stats["최대 구호 물품 수요"].toLocaleString()} 단위)</li>
                             </ul>
                             <hr class="my-4">
@@ -634,11 +635,15 @@
                             <hr class="my-4">
                             <h3 class="text-lg font-bold">권장 조치 사항</h3>
                             <p>${App.analysis.getOptimalStrategy(stats["지역별 평균 통계"])}</p>
-                            <div class="mt-4 p-3 bg-yellow-100 rounded-lg text-yellow-800">
-                                <strong>비상 연락망:</strong> ${vulnerableRegion}의 ${contact.org} (${contact.tel})
-                                <a href="${contact.url}" target="_blank" class="text-blue-600 underline ml-2">웹사이트 방문</a>
-                            </div>
                         `;
+                        if (contact) {
+                            reportHTML += `
+                                <div class="mt-4 p-3 bg-yellow-100 rounded-lg text-yellow-800">
+                                    <strong>비상 연락망:</strong> ${vulnerableRegion}의 ${contact.org} (${contact.tel})
+                                    <a href="${contact.url}" target="_blank" class="text-blue-600 underline ml-2">웹사이트 방문</a>
+                                </div>
+                            `;
+                        }
                         return reportHTML;
                     },
                     downloadPdf: async () => {
@@ -734,3 +739,4 @@
     </script>
 </body>
 </html>
+
