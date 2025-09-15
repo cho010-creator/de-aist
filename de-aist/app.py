@@ -21,7 +21,9 @@ HTML_DIR = os.path.join(os.path.dirname(__file__), "htmls")
 PAGE_NAME_MAPPING = {
     "index.html": "AI 팝업 스토어 성공 예측 모델",
     "index.2.html": "실시간 재난 대응 대시보드",
-    "index.3.html": "연금술사 카드게임 시연"
+    "index.3.html": "연금술사 카드게임 시연",
+    # index.4.html에 대한 새로운 항목을 추가합니다.
+    "index.4.html": "Ai 주간 학습 계획 생성기"
 }
 
 # 'htmls' 디렉토리에서 모든 .html 파일 찾기
@@ -53,6 +55,5 @@ else:
         with open(selected_file_path, "r", encoding="utf-8") as f:
             html_code = f.read()
 
-        # Streamlit 화면에 HTML 코드 렌더링 (st.header 제거)
+        # Streamlit 화면에 HTML 코드 렌더링
         components.html(html_code, height=1000, scrolling=True)
-
