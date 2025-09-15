@@ -52,13 +52,6 @@
             border-radius: 0.75rem;
             box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         }
-        @media (min-width: 640px) {
-            #map { height: 320px; }
-        }
-        @media (min-width: 768px) {
-            #map { height: 450px; }
-        }
-
         .alert-banner {
             padding: 1rem 1.5rem;
             border-radius: 0.75rem;
@@ -103,12 +96,6 @@
         }
         .chart-container {
             height: 350px;
-        }
-        @media (min-width: 640px) {
-            .chart-container { height: 300px; }
-        }
-        @media (min-width: 768px) {
-            .chart-container { height: 350px; }
         }
         .pulse {
             animation: pulse-animation 2s infinite;
@@ -234,7 +221,7 @@
 
             <div class="card">
                 <h3 class="text-xl font-bold text-gray-700 mb-4">재난 위험도 지도</h3>
-                <div id="map" class="rounded-lg h-auto sm:h-64 md:h-96"></div>
+                <div id="map"></div>
             </div>
         </div>
         
@@ -450,9 +437,13 @@
                         App.elements.conclusionDiv.classList.remove('hidden');
                         App.elements.resultDivider1.classList.remove('hidden');
                         App.elements.resultDivider2.classList.remove('hidden');
+                        // *** BUG FIX: Invalidate map size after it becomes visible ***
+                        if (App.state.map) {
+                            setTimeout(() => App.state.map.invalidateSize(), 100);
+                        }
                     },
                     animateNumber: (element, targetValue) => {
-                        let startValue = 0;
+                        let startValue = parseInt(element.textContent.replace(/,/g, '')) || 0;
                         const duration = 1500;
                         let startTime = null;
 
@@ -460,7 +451,7 @@
                             if (!startTime) startTime = timestamp;
                             const progress = timestamp - startTime;
                             const percentage = Math.min(progress / duration, 1);
-                            const currentValue = Math.floor(percentage * targetValue);
+                            const currentValue = Math.floor(startValue + percentage * (targetValue - startValue));
                             element.textContent = currentValue.toLocaleString();
                             if (percentage < 1) {
                                 requestAnimationFrame(animate);
@@ -501,7 +492,8 @@
                             const avgNeeds = {};
                             let regionMaxNeed = 0, regionMaxNeedItem = '';
                             App.constants.RELIEF_ITEMS.forEach(item => {
-                                const avgNeed = regionStats[region].relief_needs[item].length > 0 ? Math.floor(regionStats[region].relief_needs[item].reduce((sum, val) => sum + val, 0) / regionStats[region].relief_needs[item].length) : 0;
+                                const needsArray = regionStats[region].relief_needs[item];
+                                const avgNeed = needsArray.length > 0 ? Math.floor(needsArray.reduce((sum, val) => sum + val, 0) / needsArray.length) : 0;
                                 avgNeeds[item] = avgNeed;
                                 if (avgNeed > regionMaxNeed) { regionMaxNeed = avgNeed; regionMaxNeedItem = item; }
                             });
@@ -571,164 +563,173 @@
                                     label: `${item} (${App.constants.RELIEF_NEEDS_PER_PERSON[item].unit})`, data: suppliesData[item],
                                     backgroundColor: App.visualization.getSuppliesColor(item),
                                 }))
-                            }, options: { scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, plugins: { legend: { position: 'bottom' } } }
+                            }, options: { responsive: true, maintainAspectRatio: false, scales: { x: { stacked: true }, y: { stacked: true, beginAtZero: true } }, plugins: { legend: { position: 'bottom' } } }
                         });
                     },
                     getSuppliesColor: (item) => {
                         const colors = { '물': '#3b82f6', '식량': '#ef4444', '의약품': '#22c55e', '담요': '#f97316', '위생용품': '#8b5cf6' };
-                        return colors[item] || '#9ca3af';
+                        return colors[item] || '#6b7280';
                     },
                     renderMap: (stats) => {
-                        if (App.state.map) { App.state.map.remove(); }
-                        App.state.map = L.map('map').setView([36.5, 127.8], 7);
-                        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', { attribution: '© OpenStreetMap contributors' }).addTo(App.state.map);
-                        const casualtyValues = Object.values(stats).map(s => s.avg_casualties).filter(val => val > 0);
-                        if (casualtyValues.length === 0) return; // 재난이 발생하지 않은 경우 지도 렌더링 중단
-                        const maxCasualties = Math.max(...casualtyValues);
-                        const minCasualties = Math.min(...casualtyValues);
-                        const getRiskColor = (value, min, max) => {
-                            if (max === min) return '#22c55e';
-                            const ratio = (value - min) / (max - min);
-                            const r = Math.floor(239 * ratio);
-                            const g = Math.floor(217 * (1 - ratio));
-                            const b = Math.floor(103 * (1 - ratio));
-                            return `rgb(${r}, ${g}, ${b})`;
-                        };
-                        Object.keys(stats).forEach(region => {
-                            const avgCasualties = stats[region].avg_casualties;
-                            if (avgCasualties > 0) {
-                                const color = getRiskColor(avgCasualties, minCasualties, maxCasualties);
-                                const radius = Math.sqrt(avgCasualties) * 150 / Math.sqrt(maxCasualties);
-                                const circle = L.circleMarker(App.constants.REGION_COORDS[region], {
-                                    color: '#000', weight: 1, fillColor: color, fillOpacity: 0.8, radius: radius > 5 ? radius : 5
-                                }).addTo(App.state.map);
-                                circle.bindPopup(`<b>${region}</b><br>예상 피해 인구: ${Math.floor(avgCasualties).toLocaleString()}명`);
+                        if (!App.state.map) {
+                            App.state.map = L.map('map').setView([36.3, 127.8], 7);
+                            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+                            }).addTo(App.state.map);
+                        }
+                        
+                        // Clear previous layers
+                        App.state.map.eachLayer(layer => {
+                            if (!!layer.toGeoJSON) App.state.map.removeLayer(layer);
+                        });
+                        
+                        const maxCasualties = Math.max(...Object.values(stats).map(s => s.avg_casualties));
+
+                        Object.entries(stats).forEach(([region, data]) => {
+                            if (data.avg_casualties > 0) {
+                                const coords = App.constants.REGION_COORDS[region];
+                                const radius = 15000 + (data.avg_casualties / maxCasualties) * 50000;
+                                const color = `rgba(239, 68, 68, ${0.2 + (data.avg_casualties / maxCasualties) * 0.7})`;
+                                
+                                L.circle(coords, {
+                                    color: '#ef4444',
+                                    fillColor: color,
+                                    fillOpacity: 0.8,
+                                    radius: radius
+                                }).addTo(App.state.map)
+                                .bindPopup(`<b>${region}</b><br>예상 피해 인구: ${data.avg_casualties.toLocaleString()}명`);
                             }
                         });
                     }
                 },
-                
-                // 리포트 모듈
-                report: {
-                    updateReportContent: (data) => {
-                        const stats = data["지역별 평균 통계"];
-                        const sortedRegions = Object.entries(stats).sort(([, a], [, b]) => (b.avg_casualties ?? 0) - (a.avg_casualties ?? 0));
+
+                // 리포트 생성 모듈
+                reporting: {
+                    generateReport: (stats) => {
+                        const { vulnerableRegion, vulnerableRegionInfo } = stats;
+                        const contact = App.constants.DISASTER_CONTACTS[vulnerableRegion];
+                        
                         let reportHTML = `
-                            <p class="text-xl font-bold text-gray-800">1. 주요 통계 요약</p>
-                            <table class="w-full text-left border-collapse mt-2 text-sm">
-                                <thead><tr class="bg-gray-100"><th class="p-2">항목</th><th class="p-2">값</th></tr></thead>
-                                <tbody>
-                                    <tr><td class="p-2 border-b border-gray-200">총 시뮬레이션 횟수</td><td class="p-2 border-b border-gray-200">${(data["총 시뮬레이션 횟수"] ?? 0).toLocaleString()}회</td></tr>
-                                    <tr><td class="p-2 border-b border-gray-200">재난 위험 지수 (DRR)</td><td class="p-2 border-b border-gray-200">${data["DRR 지수"]} (0-100)</td></tr>
-                                    <tr><td class="p-2 border-b border-gray-200">총 예상 피해 인구</td><td class="p-2 border-b border-gray-200">${(data["총 예상 피해 인구"] ?? 0).toLocaleString()}명</td></tr>
-                                    <tr><td class="p-2 border-b border-gray-200">예측 피해 범위</td><td class="p-2 border-b border-gray-200">${(data["전체 피해 인구 범위"]?.min ?? 0).toLocaleString()}명 ~ ${(data["전체 피해 인구 범위"]?.max ?? 0).toLocaleString()}명</td></tr>
-                                </tbody>
-                            </table>
-                            <div class="mt-6">
-                                <p class="text-xl font-bold text-gray-800">2. 지역별 상세 분석</p>
-                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4 mt-2">
+                            <p><strong>시나리오:</strong> ${App.elements.scenarioSelect.options[App.elements.scenarioSelect.selectedIndex].text}</p>
+                            <p><strong>총 시뮬레이션 횟수:</strong> ${stats["총 시뮬레이션 횟수"].toLocaleString()}회</p>
+                            <p><strong>재난 발생 확률:</strong> ${stats["재난 발생 확률"].toFixed(2)}%</p>
+                            <hr class="my-4">
+                            <h3 class="text-lg font-bold">주요 결과 요약</h3>
+                            <ul class="list-disc list-inside">
+                                <li><strong>총 예상 피해 인구:</strong> ${stats["총 예상 피해 인구"].toLocaleString()}명</li>
+                                <li><strong>가장 취약한 지역:</strong> ${vulnerableRegion} (평균 ${vulnerableRegionInfo.avg_casualties.toLocaleString()}명 피해)</li>
+                                <li><strong>최대 수요 물품:</strong> ${stats["최대 구호 물품"]} (최대 ${stats["최대 구호 물품 수요"].toLocaleString()} 단위)</li>
+                            </ul>
+                            <hr class="my-4">
+                            <h3 class="text-lg font-bold">지역별 상세 분석</h3>
                         `;
-                        sortedRegions.forEach(([region, stat]) => {
-                            if (stat && (stat.avg_casualties ?? 0) > 0) {
-                                reportHTML += `
-                                    <div class="bg-gray-100 p-4 rounded-lg">
-                                        <h3 class="font-bold text-lg text-gray-700">${region}</h3>
-                                        <p class="text-sm">예상 피해 인구: <b class="text-red-600">${Math.floor(stat.avg_casualties ?? 0).toLocaleString()}</b>명</p>
-                                        <ul class="list-disc list-inside mt-2 text-xs text-gray-600">
-                                `;
-                                App.constants.RELIEF_ITEMS.forEach(item => {
-                                    reportHTML += `<li>${item}: ${Math.floor(stat.avg_relief_needs[item] ?? 0).toLocaleString()}${App.constants.RELIEF_NEEDS_PER_PERSON[item].unit}</li>`;
-                                });
-                                reportHTML += `</ul>
-                                    <div class="mt-4">
-                                        <p class="font-semibold text-sm">재난 대응 기관:</p>
-                                        <p class="text-xs">${App.constants.DISASTER_CONTACTS[region].org} (${App.constants.DISASTER_CONTACTS[region].tel})</p>
-                                        <a href="${App.constants.DISASTER_CONTACTS[region].url}" target="_blank" rel="noopener noreferrer" class="text-blue-500 hover:underline text-xs">자세히 보기</a>
-                                    </div>
-                                    </div>
-                                `;
-                            }
+                        Object.entries(stats["지역별 평균 통계"]).forEach(([region, data]) => {
+                            reportHTML += `
+                                <div class="p-2 bg-gray-50 rounded-lg mt-2">
+                                    <strong>${region}:</strong> 피해 인구 평균 ${data.avg_casualties.toLocaleString()}명 (범위: ${data.min_casualties.toLocaleString()} ~ ${data.max_casualties.toLocaleString()}명)
+                                </div>
+                            `;
                         });
                         reportHTML += `
-                                </div>
-                            </div>
-                            <div class="mt-6">
-                                <p class="text-xl font-bold text-gray-800">3. 최적 구호 물품 배치 전략</p>
-                                <p class="mt-2 text-base text-gray-700">${App.analysis.getOptimalStrategy(stats)}</p>
+                            <hr class="my-4">
+                            <h3 class="text-lg font-bold">권장 조치 사항</h3>
+                            <p>${App.analysis.getOptimalStrategy(stats["지역별 평균 통계"])}</p>
+                            <div class="mt-4 p-3 bg-yellow-100 rounded-lg text-yellow-800">
+                                <strong>비상 연락망:</strong> ${vulnerableRegion}의 ${contact.org} (${contact.tel})
+                                <a href="${contact.url}" target="_blank" class="text-blue-600 underline ml-2">웹사이트 방문</a>
                             </div>
                         `;
-                        App.elements.reportContentDiv.innerHTML = reportHTML;
+                        return reportHTML;
+                    },
+                    downloadPdf: async () => {
+                        const { jsPDF } = window.jspdf;
+                        const content = App.elements.reportContentDiv;
+                        const button = App.elements.downloadPdfBtn;
+                        button.textContent = 'PDF 생성 중...';
+                        button.disabled = true;
+
+                        try {
+                            const canvas = await html2canvas(content, { scale: 2 });
+                            const imgData = canvas.toDataURL('image/png');
+                            const pdf = new jsPDF('p', 'mm', 'a4');
+                            const pdfWidth = pdf.internal.pageSize.getWidth();
+                            const pdfHeight = pdf.internal.pageSize.getHeight();
+                            const imgWidth = canvas.width;
+                            const imgHeight = canvas.height;
+                            const ratio = imgWidth / imgHeight;
+                            let newImgWidth = pdfWidth;
+                            let newImgHeight = newImgWidth / ratio;
+                            
+                            if (newImgHeight > pdfHeight) {
+                                newImgHeight = pdfHeight;
+                                newImgWidth = newImgHeight * ratio;
+                            }
+                            
+                            const x = (pdfWidth - newImgWidth) / 2;
+                            const y = 10;
+                            
+                            pdf.addImage(imgData, 'PNG', x, y, newImgWidth, newImgHeight);
+                            pdf.save("disaster_report.pdf");
+                        } catch (error) {
+                            console.error("PDF 생성 오류:", error);
+                            alert("PDF 생성 중 오류가 발생했습니다.");
+                        } finally {
+                            button.textContent = 'PDF 다운로드';
+                            button.disabled = false;
+                        }
                     }
                 },
                 
-                // 메인 로직
-                main: {
-                    displayResults: (data) => {
-                        App.ui.animateNumber(App.elements.drrScoreSpan, data["DRR 지수"]);
-                        App.ui.animateNumber(App.elements.totalAvgCasualtiesSpan, data["총 예상 피해 인구"]);
-                        App.ui.animateNumber(App.elements.maxSupplyNeedsSpan, Math.floor(data["최대 구호 물품 수요"] ?? 0));
-                        App.elements.casualtyRangeSpan.textContent = `(범위: ${(data["전체 피해 인구 범위"]?.min ?? 0).toLocaleString()}명 ~ ${(data["전체 피해 인구 범위"]?.max ?? 0).toLocaleString()}명)`;
-                        App.elements.maxSupplyItemSpan.textContent = `(${data["최대 구호 물품"]})`;
-                        const vulnerableStats = data["가장 취약한 지역 정보"];
-                        App.elements.vulnerableRegionSpan.textContent = data["가장 취약한 지역"];
-                        App.elements.vulnerableRegionInfoSpan.textContent = `${Math.floor(vulnerableStats?.avg_casualties ?? 0).toLocaleString()}명 예상 피해`;
-                        App.elements.optimalStrategySpan.innerHTML = App.analysis.getOptimalStrategy(data["지역별 평균 통계"]);
-                        
-                        App.visualization.renderCharts(data["지역별 평균 통계"]);
-                        App.visualization.renderMap(data["지역별 평균 통계"]);
-                        App.report.updateReportContent(data);
-                        App.ui.setAlertLevel(data["재난 발생 확률"]);
-                    },
-                    initEventListeners: () => {
-                        App.elements.runButton.addEventListener('click', () => {
-                            const nSimulations = parseInt(App.elements.simulationCountInput.value, 10);
-                            const disasterProb = parseInt(App.elements.disasterProbInput.value, 10);
-                            const scenario = App.elements.scenarioSelect.value;
-                            if (isNaN(nSimulations) || nSimulations < 100 || isNaN(disasterProb) || disasterProb < 0 || disasterProb > 100) {
-                                return;
-                            }
-                            App.ui.showLoading();
-                            simulationWorker.postMessage({ nSimulations, disasterProb, scenario });
-                        });
+                init: () => {
+                    App.ui.setAlertLevel(App.elements.disasterProbInput.value);
+                    App.elements.disasterProbInput.addEventListener('input', (e) => App.ui.setAlertLevel(e.target.value));
+                    
+                    App.elements.runButton.addEventListener('click', () => {
+                        App.ui.showLoading();
+                        const nSimulations = parseInt(App.elements.simulationCountInput.value);
+                        const disasterProb = parseInt(App.elements.disasterProbInput.value);
+                        const scenario = App.elements.scenarioSelect.value;
+                        simulationWorker.postMessage({ nSimulations, disasterProb, scenario });
+                    });
+                    
+                    simulationWorker.onmessage = (e) => {
+                        if (e.data.type === 'progress') {
+                            const percentage = Math.floor((e.data.completed / e.data.total) * 100);
+                            App.elements.progressBar.style.width = `${percentage}%`;
+                            App.elements.progressSpan.textContent = `${percentage}%`;
+                        } else if (e.data.type === 'complete') {
+                            const analysisResults = App.analysis.analyzeResults(e.data.results, parseInt(App.elements.simulationCountInput.value));
+                            
+                            App.ui.hideLoading();
+                            
+                            // Update KPIs
+                            App.ui.animateNumber(App.elements.drrScoreSpan, analysisResults["DRR 지수"]);
+                            App.ui.animateNumber(App.elements.totalAvgCasualtiesSpan, analysisResults["총 예상 피해 인구"]);
+                            App.elements.casualtyRangeSpan.textContent = `범위: ${analysisResults["전체 피해 인구 범위"].min.toLocaleString()} ~ ${analysisResults["전체 피해 인구 범위"].max.toLocaleString()}`;
+                            App.ui.animateNumber(App.elements.maxSupplyNeedsSpan, analysisResults["최대 구호 물품 수요"]);
+                            App.elements.maxSupplyItemSpan.textContent = `${analysisResults["최대 구호 물품"]}`;
+                            App.elements.vulnerableRegionSpan.textContent = analysisResults["가장 취약한 지역"];
+                            App.elements.vulnerableRegionInfoSpan.textContent = `평균 ${analysisResults["가장 취약한 지역 정보"].avg_casualties.toLocaleString()}명 피해`;
+                            App.elements.optimalStrategySpan.innerHTML = App.analysis.getOptimalStrategy(analysisResults["지역별 평균 통계"]);
+                            
+                            // Render Visualizations
+                            App.visualization.renderCharts(analysisResults["지역별 평균 통계"]);
+                            App.visualization.renderMap(analysisResults["지역별 평균 통계"]);
+                            
+                            // Prepare Report
+                            App.elements.reportContentDiv.innerHTML = App.reporting.generateReport(analysisResults);
+                        }
+                    };
 
-                        simulationWorker.onmessage = (e) => {
-                            if (e.data.type === 'progress') {
-                                const percent = Math.floor((e.data.completed / e.data.total) * 100);
-                                App.elements.progressBar.style.width = `${percent}%`;
-                                App.elements.progressSpan.textContent = `${percent}%`;
-                            } else if (e.data.type === 'complete') {
-                                const finalOutput = App.analysis.analyzeResults(e.data.results, e.data.total);
-                                App.main.displayResults(finalOutput);
-                                App.ui.hideLoading();
-                            }
-                        };
-                        
-                        App.elements.showReportBtn.addEventListener('click', () => { App.elements.reportModal.classList.remove('hidden'); });
-                        App.elements.closeModalBtn.addEventListener('click', () => { App.elements.reportModal.classList.add('hidden'); });
-                        App.elements.closeBtnInModal.addEventListener('click', () => { App.elements.reportModal.classList.add('hidden'); });
-                        window.addEventListener('click', (e) => {
-                            if (e.target === App.elements.reportModal) { App.elements.reportModal.classList.add('hidden'); }
-                        });
-                        App.elements.downloadPdfBtn.addEventListener('click', () => {
-                            const reportContent = document.getElementById('reportContent');
-                            html2canvas(reportContent).then(canvas => {
-                                const imgData = canvas.toDataURL('image/png');
-                                const { jsPDF } = window.jspdf;
-                                const pdf = new jsPDF('p', 'mm', 'a4');
-                                const imgProps = pdf.getImageProperties(imgData);
-                                const pdfWidth = pdf.internal.pageSize.getWidth();
-                                const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width;
-                                pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight);
-                                pdf.save("재난_시뮬레이션_리포트.pdf");
-                            });
-                        });
-                    }
+                    App.elements.showReportBtn.addEventListener('click', () => App.elements.reportModal.classList.remove('hidden'));
+                    App.elements.closeModalBtn.addEventListener('click', () => App.elements.reportModal.classList.add('hidden'));
+                    App.elements.closeBtnInModal.addEventListener('click', () => App.elements.reportModal.classList.add('hidden'));
+                    App.elements.downloadPdfBtn.addEventListener('click', App.reporting.downloadPdf);
+
+                    App.visualization.renderMap({}); // Initialize map on load
                 }
             };
-
-            // 초기 로드
-            App.ui.setAlertLevel(parseInt(App.elements.disasterProbInput.value, 10));
-            App.main.initEventListeners();
+            App.init();
         });
     </script>
 </body>
