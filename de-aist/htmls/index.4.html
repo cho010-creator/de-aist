@@ -12,7 +12,7 @@
         
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #f0f4f8; /* Soft blue-gray background */
+            background-color: #f0f4f8;
             display: flex;
             justify-content: center;
             align-items: center;
@@ -50,7 +50,7 @@
         }
         .loader {
             border: 8px solid #e2e8f0;
-            border-top: 8px solid #3b82f6; /* Blue loader */
+            border-top: 8px solid #3b82f6;
             border-radius: 50%;
             width: 50px;
             height: 50px;
@@ -70,14 +70,15 @@
             margin-right: 0.5rem;
             vertical-align: middle;
         }
+        
         /* Subject-specific colors */
-        .subject-color-1 { background-color: #fce7f3; color: #be185d; } /* 국어 */
-        .subject-color-2 { background-color: #dbeafe; color: #2563eb; } /* 수학 */
-        .subject-color-3 { background-color: #fef9c3; color: #a16207; } /* 영어 */
-        .subject-color-4 { background-color: #d1fae5; color: #059669; } /* 과학 */
-        .subject-color-5 { background-color: #e0f2fe; color: #0c4a6e; } /* 사회 */
-        .subject-color-6 { background-color: #e5e7eb; color: #4b5563; } /* 기타 */
-        .subject-color-break { background-color: #fef2f2; color: #b91c1c; } /* 쉬는 시간 */
+        .subject-color-1 { background-color: #fce7f3; color: #be185d; }
+        .subject-color-2 { background-color: #dbeafe; color: #2563eb; }
+        .subject-color-3 { background-color: #fef9c3; color: #a16207; }
+        .subject-color-4 { background-color: #d1fae5; color: #059669; }
+        .subject-color-5 { background-color: #e0f2fe; color: #0c4a6e; }
+        .subject-color-6 { background-color: #e5e7eb; color: #4b5563; }
+        .subject-color-break { background-color: #fef2f2; color: #b91c1c; }
         
         /* Motivational message styling */
         .noto-serif-kr-font {
@@ -109,11 +110,11 @@
             padding: 2.5rem;
             border-radius: 1.5rem;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            max-width: 900px; /* 창 크기 확장 */
+            max-width: 900px;
             width: 100%;
-            height: auto; /* 높이 자동 조절 */
-            min-height: 800px; /* 최소 높이 설정 */
-            overflow-y: auto; /* 내용이 넘칠 경우 스크롤 허용 */
+            height: auto;
+            min-height: 800px;
+            overflow-y: auto;
             display: flex;
             flex-direction: column;
         }
@@ -127,8 +128,7 @@
                 grid-template-columns: repeat(2, 1fr);
             }
         }
-
-        /* Styles for weekly tabs */
+        
         .tabs {
             display: flex;
             justify-content: center;
@@ -161,10 +161,49 @@
             align-items: center;
             height: 100%;
         }
-        
+        .plan-item {
+            display: flex;
+            align-items: center;
+            padding: 0.5rem;
+            border-radius: 0.5rem;
+            font-size: 0.875rem;
+            line-height: 1.25rem;
+        }
+        .plan-item-time {
+            font-weight: 600;
+            flex-shrink: 0;
+            width: 80px;
+        }
+        .plan-item-activity {
+            flex-grow: 1;
+            padding: 0.25rem 0.5rem;
+            border-radius: 0.375rem;
+            margin-left: 0.5rem;
+        }
+        .plan-header {
+            text-align: center;
+            margin-bottom: 1rem;
+        }
+
+        /* Centering for overall app layout */
+        .step-container.active {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        /* Left-align for specific inputs in Step 1 & 2 */
+        #step-1 > div, #step-2 > div {
+            width: 100%;
+            max-width: 600px;
+            text-align: left; /* Left-align for content inside these steps */
+        }
+        #step-1 .flex, #step-2 .flex {
+            justify-content: center; /* Center the buttons */
+        }
     </style>
 </head>
-<body class="p-4 sm:p-8 flex justify-center items-center min-h-screen">
+<body class="p-4 sm:p-8 flex justify-center min-h-screen">
 
     <div class="main-container">
         <h1 class="text-2xl sm:text-3xl font-bold text-center text-gray-800 mb-6 flex items-center justify-center">
@@ -173,7 +212,7 @@
 
         <!-- Step 1: Basic Information -->
         <div id="step-1" class="step-container active">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">1. 기본 정보 입력</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">1. 기본 정보 입력</h2>
             <div class="space-y-4">
                 <div>
                     <label for="startDate" class="block text-gray-600 mb-1">계획 시작일</label>
@@ -189,13 +228,13 @@
             </div>
         </div>
 
-        <!-- Step 2: Subject and Exam Subject Selection -->
+        <!-- Step 2: Subject Selection -->
         <div id="step-2" class="step-container">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">2. 과목 및 시험 과목 선택</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">2. 공부할 과목 선택</h2>
             <div class="space-y-6">
                 <!-- Study Subjects -->
                 <div>
-                    <label class="block text-gray-600 font-semibold mb-2">공부할 과목 (중복 선택 가능)</label>
+                    <label class="block text-gray-600 font-semibold mb-2">과목 (중복 선택 가능)</label>
                     <div id="studySubjects" class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl">
                         <label class="flex items-center space-x-2"><input type="checkbox" name="study_subject" value="국어 (문학)" class="rounded text-blue-500 focus:ring-blue-400"><span>국어 (문학)</span></label>
                         <label class="flex items-center space-x-2"><input type="checkbox" name="study_subject" value="국어 (독서)" class="rounded text-blue-500 focus:ring-blue-400"><span>국어 (독서)</span></label>
@@ -218,32 +257,6 @@
                         <input type="text" id="otherStudy" placeholder="예: 코딩, 일본어" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
                     </div>
                 </div>
-
-                <!-- Exam Subjects -->
-                <div>
-                    <label class="block text-gray-600 font-semibold mb-2">시험 과목 (중복 선택 가능)</label>
-                    <div id="examSubjects" class="grid grid-cols-2 sm:grid-cols-3 gap-3 bg-gray-50 p-4 rounded-xl">
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="국어 (문학)" class="rounded text-blue-500 focus:ring-blue-400"><span>국어 (문학)</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="국어 (독서)" class="rounded text-blue-500 focus:ring-blue-400"><span>국어 (독서)</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="수학 (I)" class="rounded text-blue-500 focus:ring-blue-400"><span>수학 (I)</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="수학 (II)" class="rounded text-blue-500 focus:ring-blue-400"><span>수학 (II)</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="영어" class="rounded text-blue-500 focus:ring-blue-400"><span>영어</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="물리" class="rounded text-blue-500 focus:ring-blue-400"><span>물리</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="화학" class="rounded text-blue-500 focus:ring-blue-400"><span>화학</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="생명" class="rounded text-blue-500 focus:ring-blue-400"><span>생명</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="지구" class="rounded text-blue-500 focus:ring-blue-400"><span>지구</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="사회문화" class="rounded text-blue-500 focus:ring-blue-400"><span>사회문화</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="한국지리" class="rounded text-blue-500 focus:ring-blue-400"><span>한국지리</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="정치와 법" class="rounded text-blue-500 focus:ring-blue-400"><span>정치와 법</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="생활과 윤리" class="rounded text-blue-500 focus:ring-blue-400"><span>생활과 윤리</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="윤리와 사상" class="rounded text-blue-500 focus:ring-blue-400"><span>윤리와 사상</span></label>
-                        <label class="flex items-center space-x-2"><input type="checkbox" name="exam_subject" value="한국사" class="rounded text-blue-500 focus:ring-blue-400"><span>한국사</span></label>
-                    </div>
-                    <div class="mt-4">
-                        <label for="otherExam" class="block text-gray-600 mb-1">기타 (쉼표로 구분하여 여러 개 입력 가능)</label>
-                        <input type="text" id="otherExam" placeholder="예: 논술, 토론" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400 transition-colors">
-                    </div>
-                </div>
             </div>
             <div class="flex justify-between mt-6">
                 <button id="prev-2" class="px-6 py-3 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-100 transition-colors">이전</button>
@@ -253,8 +266,8 @@
 
         <!-- Step 3: Unavailable Times -->
         <div id="step-3" class="step-container">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">3. 불가능한 시간대 설정</h2>
-            <p class="text-gray-500 mb-4">계획 기간 동안 불가능한 날짜와 시간을 입력해주세요.</p>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">3. 불가능한 시간대 설정</h2>
+            <p class="text-gray-500 mb-4 text-center">계획 기간 동안 불가능한 날짜와 시간을 입력해주세요.</p>
             <div class="unavailable-times-container bg-gray-200 p-4 rounded-xl">
                 <div class="bg-white p-4 rounded-xl shadow-sm">
                     <h3 class="font-medium text-gray-700 mb-2">날짜 선택</h3>
@@ -272,7 +285,7 @@
                     <div id="unavailable-times-container-inputs" class="space-y-4">
                          <div class="flex flex-col">
                             <label for="unavailable-time-input" class="text-sm">시간 (시작-종료)</label>
-                            <input type="text" id="unavailable-time-input" placeholder="예: 09:00-11:00" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                            <input type="text" id="unavailable-time-input" placeholder="예: 09:00-11:00 or 23:00~01:00" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
                         </div>
                         <div class="flex flex-col">
                             <label for="unavailable-activity" class="text-sm">활동</label>
@@ -301,39 +314,15 @@
 
         <!-- Step 4: Target Study Amount -->
         <div id="step-4" class="step-container">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">4. 목표 공부량 설정</h2>
-            <div class="bg-blue-50 p-4 rounded-xl mb-4 text-blue-700 font-semibold">
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">4. 목표 공부량 설정</h2>
+            <div class="bg-blue-50 p-4 rounded-xl mb-4 text-blue-700 font-semibold flex flex-col sm:flex-row justify-between items-center text-center">
                 <p>총 순공부 가능 시간: <span id="totalAvailableTime">0</span>시간</p>
+                <p class="mt-2 sm:mt-0">남은 순공부 가능 시간: <span id="remainingAvailableTime">0</span>시간</p>
             </div>
             <div class="space-y-4">
-                <div>
-                    <label for="inputMode" class="block text-gray-600 mb-1">입력 모드 선택</label>
-                    <select id="inputMode" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                        <option value="targetAmount">해야 하는 공부량</option>
-                        <option value="targetTime">목표 공부 시간</option>
-                    </select>
-                </div>
-                <div id="targetAmountMode" class="space-y-4">
-                    <p class="text-gray-500">각 과목별로 '해야 하는 공부량' (쪽수, 문제수 등)을 입력해주세요.</p>
-                    <div id="targetAmountInputs" class="space-y-2">
-                        <!-- Inputs for subjects will be generated here -->
-                    </div>
-                </div>
-                <div id="targetTimeMode" class="hidden space-y-4">
-                    <div class="mb-2">
-                        <label for="targetTimeScope" class="block text-gray-600 mb-1">목표 시간 기준</label>
-                        <select id="targetTimeScope" class="w-full p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
-                            <option value="total">총 기간</option>
-                            <option value="daily">하루</option>
-                        </select>
-                    </div>
-                    <p class="text-gray-500">각 과목별로 '목표 공부 시간' (시간 단위)을 입력해주세요.</p>
-                    <div id="targetTimeInputs" class="space-y-2">
-                        <!-- Inputs for subjects will be generated here -->
-                    </div>
-                    <div class="flex justify-end mt-4 text-right">
-                        <p class="text-sm text-gray-600">입력된 목표 시간 총합: <span id="totalTargetTime">0</span>시간</p>
-                    </div>
+                <p class="text-gray-500 text-center">각 과목별로 '목표 공부량' 또는 '목표 시간'을 입력해주세요.</p>
+                <div id="targetInputs" class="space-y-2">
+                    <!-- Inputs for subjects will be generated here -->
                 </div>
             </div>
             <div class="flex justify-between mt-6">
@@ -354,7 +343,7 @@
 
         <!-- Step 5: Generated Plan -->
         <div id="step-5" class="step-container">
-            <h2 class="text-xl font-semibold mb-4 text-gray-700">5. 생성된 학습 계획</h2>
+            <h2 class="text-xl font-semibold mb-4 text-gray-700 text-center">5. 생성된 학습 계획</h2>
             
             <!-- Weekly Tabs -->
             <div class="tabs" id="tab-container">
@@ -362,9 +351,10 @@
             </div>
 
             <!-- Plan Output -->
-            <div id="planOutput" class="bg-gray-100 p-6 rounded-xl shadow-inner min-h-[300px] flex flex-col">
-                <div id="plan-list" class="flex-grow">
+            <div id="planOutput" class="bg-gray-100 p-6 rounded-xl shadow-inner min-h-[300px]">
+                <div id="plan-list">
                     <!-- Plan items will be displayed here -->
+                    <div id="weekly-plan-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4"></div>
                 </div>
             </div>
 
@@ -380,20 +370,7 @@
                 <button id="getMotivationalMessageButton" class="bg-blue-600 text-white font-bold py-3 px-6 rounded-full shadow-lg hover:bg-blue-700 transition duration-300 transform hover:scale-105 focus:outline-none focus:ring-4 focus:ring-blue-500 focus:ring-opacity-50">
                     응원 메시지 받기
                 </button>
-                <div id="motivationalMessageContainer" class="mt-8 transition-opacity duration-500 ease-in-out opacity-0 hidden">
-                    <div id="universityInfo" class="flex items-center p-6 bg-blue-50 rounded-2xl gap-4">
-                        <div class="university-logo-container flex-shrink-0">
-                            <img id="universityLogo" class="university-logo" alt="University Logo">
-                        </div>
-                        <div class="university-text-container text-left flex-grow">
-                            <p id="universityName" class="text-2xl font-bold text-gray-800"></p>
-                            <p id="universitySlogan" class="text-lg text-gray-600 mt-2 italic noto-serif-kr-font"></p>
-                        </div>
-                    </div>
-                    <p id="motivationalText" class="text-lg mt-6 font-semibold text-gray-700 leading-relaxed noto-serif-kr-font"></p>
-                </div>
             </div>
-
         </div>
     </div>
 
@@ -405,7 +382,7 @@
         </div>
     </div>
 
-    <!-- New: Confirmation Modal -->
+    <!-- Confirmation Modal -->
     <div id="confirmationModal" class="modal">
         <div class="modal-content">
             <p class="text-xl font-bold text-gray-800 mb-4">계획을 확정하시겠습니까?</p>
@@ -416,6 +393,27 @@
             </div>
         </div>
     </div>
+    
+    <!-- Motivational Message Modal -->
+    <div id="motivationalMessageModal" class="modal">
+        <div class="modal-content text-center">
+            <button id="closeMotivationalModal" class="absolute top-4 right-4 text-gray-500 hover:text-gray-700 transition-colors">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+            </button>
+            <div class="flex items-center p-4 bg-blue-50 rounded-2xl gap-4 mb-4">
+                <div class="university-logo-container flex-shrink-0">
+                    <img id="universityLogo" class="university-logo" alt="University Logo">
+                </div>
+                <div class="university-text-container text-left flex-grow">
+                    <p id="universityName" class="text-2xl font-bold text-gray-800"></p>
+                    <p id="universitySlogan" class="text-lg text-gray-600 mt-2 italic noto-serif-kr-font"></p>
+                </div>
+            </div>
+            <p id="motivationalText" class="text-lg mt-6 font-semibold text-gray-700 leading-relaxed noto-serif-kr-font"></p>
+        </div>
+    </div>
 
     <script>
         // Global State Object to store user input
@@ -424,14 +422,11 @@
             startDate: null,
             endDate: null,
             studySubjects: [],
-            examSubjects: [],
             unavailableTimes: [], // [{ date: 'YYYY-MM-DD', startTime: 'HH:MM', endTime: 'HH:MM', activity: 'activity' }]
             selectedDates: [], // For Step 3 date selection
-            targetAmounts: {},
-            targetTimes: {},
-            inputMode: 'targetAmount',
-            targetTimeScope: 'total',
+            targetGoals: {}, // { subject: { type: 'amount' or 'time', value: 0 } }
             totalAvailableMinutes: 0,
+            remainingAvailableMinutes: 0,
             daysOfWeek: ['일', '월', '화', '수', '목', '금', '토'],
             currentCalendarDate: new Date(),
             subjectColors: {},
@@ -454,8 +449,11 @@
         const otherActivityInput = document.getElementById('other-activity');
         const unavailableTimeInput = document.getElementById('unavailable-time-input');
         const planOutputContainer = document.getElementById('planOutput');
-        const planList = document.getElementById('plan-list');
+        const weeklyPlanContainer = document.getElementById('weekly-plan-container');
         const tabContainer = document.getElementById('tab-container');
+        const totalAvailableTimeSpan = document.getElementById('totalAvailableTime');
+        const remainingAvailableTimeSpan = document.getElementById('remainingAvailableTime');
+        const motivationalMessageModal = document.getElementById('motivationalMessageModal');
         let lastSelectedDate = null; // for Shift-click selection
         
         // Initial setup
@@ -478,6 +476,7 @@
                     } else if (state.currentStep === 4) {
                         renderTargetInputs();
                         updateTotalAvailableTime();
+                        updateRemainingAvailableTime();
                     } else if (state.currentStep === 5) {
                         // next-4 button now goes to the confirmation step
                         return;
@@ -533,13 +532,11 @@
                 startDate: null,
                 endDate: null,
                 studySubjects: [],
-                examSubjects: [],
                 unavailableTimes: [],
                 selectedDates: [],
-                targetAmounts: {},
-                targetTimes: {},
-                inputMode: 'targetAmount',
-                targetTimeScope: 'total',
+                targetGoals: {},
+                totalAvailableMinutes: 0,
+                remainingAvailableMinutes: 0,
                 currentCalendarDate: new Date(),
                 subjectColors: {},
                 fullPlan: [],
@@ -549,11 +546,8 @@
             document.getElementById('startDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('endDate').value = new Date().toISOString().split('T')[0];
             document.getElementById('otherStudy').value = '';
-            document.getElementById('otherExam').value = '';
-            document.getElementById('targetAmountInputs').innerHTML = '';
-            document.getElementById('targetTimeInputs').innerHTML = '';
+            document.getElementById('targetInputs').innerHTML = '';
             document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-            document.getElementById('motivationalMessageContainer').classList.add('opacity-0', 'hidden');
             showStep(1);
         });
 
@@ -631,13 +625,11 @@
                 state.endDate = endDate;
             } else if (step === 2) {
                 const studySubjects = getSelectedSubjects('study_subject', 'otherStudy');
-                const examSubjects = getSelectedSubjects('exam_subject', 'otherExam');
                 if (studySubjects.length === 0) {
                     showMessage('공부할 과목을 하나 이상 선택하거나 입력해주세요.');
                     return false;
                 }
                 state.studySubjects = studySubjects;
-                state.examSubjects = examSubjects;
 
                 // Assign colors to subjects
                 state.studySubjects.forEach((subject, index) => {
@@ -646,25 +638,21 @@
             } else if (step === 3) {
                 // No specific validation needed, as users can skip this step if they have no unavailable times
             } else if (step === 4) {
-                state.inputMode = document.getElementById('inputMode').value;
-                if (state.inputMode === 'targetTime') {
-                    state.targetTimeScope = document.getElementById('targetTimeScope').value;
-                }
-                
-                const inputs = state.inputMode === 'targetAmount' ? state.targetAmounts : state.targetTimes;
+                state.targetGoals = {};
                 for (const subject of state.studySubjects) {
-                    const valueElement = document.getElementById(`input-${subject}${state.inputMode === 'targetTime' ? '-time' : ''}`);
-                    const value = parseFloat(valueElement.value);
+                    const selectElement = document.getElementById(`select-${subject}`);
+                    const inputElement = document.getElementById(`input-${subject}`);
+                    
+                    if (!selectElement || !inputElement) continue;
+
+                    const type = selectElement.value;
+                    const value = parseFloat(inputElement.value);
 
                     if (isNaN(value) || value <= 0) {
-                        showMessage('각 과목의 목표량을 0보다 큰 값으로 입력해주세요.');
+                        showMessage(`'${subject}' 과목의 목표량을 0보다 큰 값으로 입력해주세요.`);
                         return false;
                     }
-                    if (state.inputMode === 'targetAmount') {
-                        state.targetAmounts[subject] = value;
-                    } else {
-                        state.targetTimes[subject] = value * 60; // Convert hours to minutes
-                    }
+                    state.targetGoals[subject] = { type, value };
                 }
             }
             return true;
@@ -704,7 +692,7 @@
                 return;
             }
             
-            const timeRange = unavailableTimeInput.value.trim();
+            const timeRange = unavailableTimeInput.value.trim().replace(/~/, '-');
             if (!timeRange) {
                 showMessage('시간 범위를 입력해주세요.');
                 return;
@@ -714,18 +702,15 @@
             const match = timeRange.match(timePattern);
 
             if (!match) {
-                showMessage('시간 형식이 올바르지 않습니다. (예: 09:00-11:00)');
+                showMessage('시간 형식이 올바르지 않습니다. (예: 09:00-11:00 or 23:00~01:00)');
                 return;
             }
 
-            const startTime = match[1].padStart(2, '0') + ':' + match[2].padStart(2, '0');
-            const endTime = match[3].padStart(2, '0') + ':' + match[4].padStart(2, '0');
+            const startHour = parseInt(match[1]);
+            const startMinute = parseInt(match[2]);
+            const endHour = parseInt(match[3]);
+            const endMinute = parseInt(match[4]);
             
-            if (startTime >= endTime) {
-                showMessage('종료 시간은 시작 시간보다 늦어야 합니다.');
-                return;
-            }
-
             let activity = unavailableActivitySelect.value;
             if (activity === '기타') {
                 activity = otherActivityInput.value.trim();
@@ -734,9 +719,20 @@
                     return;
                 }
             }
-
+            
             state.selectedDates.forEach(date => {
-                state.unavailableTimes.push({ date, startTime, endTime, activity });
+                let startTime = `${String(startHour).padStart(2, '0')}:${String(startMinute).padStart(2, '0')}`;
+                let endTime = `${String(endHour).padStart(2, '0')}:${String(endMinute).padStart(2, '0')}`;
+                
+                if (startHour > endHour || (startHour === endHour && startMinute > endMinute)) {
+                    state.unavailableTimes.push({ date, startTime, endTime: '23:59', activity });
+                    const nextDay = new Date(date);
+                    nextDay.setDate(nextDay.getDate() + 1);
+                    const nextDate = nextDay.toISOString().split('T')[0];
+                    state.unavailableTimes.push({ date: nextDate, startTime: '00:00', endTime, activity });
+                } else {
+                    state.unavailableTimes.push({ date, startTime, endTime, activity });
+                }
             });
             state.selectedDates = [];
             document.querySelectorAll('.day').forEach(d => d.classList.remove('bg-blue-200', 'border-2', 'border-blue-500'));
@@ -767,14 +763,12 @@
             const firstDay = new Date(year, month, 1);
             const lastDay = new Date(year, month + 1, 0);
             
-            // Add empty cells for the days before the 1st
             for (let i = 0; i < firstDay.getDay(); i++) {
                 const emptyCell = document.createElement('div');
                 emptyCell.className = 'p-2';
                 calendarContainer.appendChild(emptyCell);
             }
 
-            // Add day cells
             for (let i = 1; i <= lastDay.getDate(); i++) {
                 const dayCell = document.createElement('div');
                 dayCell.className = 'day p-2 rounded-lg cursor-pointer transition-colors';
@@ -782,7 +776,6 @@
                 dayCell.dataset.date = dayDate;
                 dayCell.textContent = i;
                 
-                // Highlight selected dates
                 if (state.selectedDates.includes(dayDate)) {
                     dayCell.classList.add('bg-blue-200', 'border-2', 'border-blue-500');
                 }
@@ -811,7 +804,7 @@
                     }
 
                     lastSelectedDate = selectedDate;
-                    updateCalendar(); // Re-render calendar to show new selections
+                    updateCalendar();
                 });
                 calendarContainer.appendChild(dayCell);
             }
@@ -861,65 +854,53 @@
 
 
         // --- Step 4: Target Study Amount/Time ---
-        document.getElementById('inputMode').addEventListener('change', (e) => {
-            const mode = e.target.value;
-            document.getElementById('targetAmountMode').classList.add('hidden');
-            document.getElementById('targetTimeMode').classList.add('hidden');
-            if (mode === 'targetAmount') {
-                document.getElementById('targetAmountMode').classList.remove('hidden');
-            } else {
-                document.getElementById('targetTimeMode').classList.remove('hidden');
-            }
-        });
-
         function renderTargetInputs() {
-            const amountContainer = document.getElementById('targetAmountInputs');
-            const timeContainer = document.getElementById('targetTimeInputs');
-            amountContainer.innerHTML = '';
-            timeContainer.innerHTML = '';
-
-            state.studySubjects.forEach(subject => {
-                // Target Amount Input
-                const amountDiv = document.createElement('div');
-                amountDiv.className = 'flex items-center space-x-2';
-                amountDiv.innerHTML = `
-                    <label class="w-1/3 text-gray-600">${subject}</label>
-                    <input type="number" id="input-${subject}" placeholder="목표량" class="w-2/3 p-3 border border-gray-300 rounded-lg">
-                `;
-                amountContainer.appendChild(amountDiv);
-
-                // Target Time Input
-                const timeDiv = document.createElement('div');
-                timeDiv.className = 'flex items-center space-x-2';
-                timeDiv.innerHTML = `
-                    <label class="w-1/3 text-gray-600">${subject}</label>
-                    <input type="number" id="input-${subject}-time" placeholder="목표 시간 (h)" class="w-2/3 p-3 border border-gray-300 rounded-lg">
-                `;
-                timeContainer.appendChild(timeDiv);
-
-                // Add event listener to time input for real-time calculation
-                document.getElementById(`input-${subject}-time`).addEventListener('input', updateStudyTimeTotal);
-            });
-            updateStudyTimeTotal();
-        }
+            const targetInputsContainer = document.getElementById('targetInputs');
+            targetInputsContainer.innerHTML = '';
         
-        function updateStudyTimeTotal() {
-            let total = 0;
             state.studySubjects.forEach(subject => {
-                const input = document.getElementById(`input-${subject}-time`);
-                if(input) {
-                    total += parseFloat(input.value) || 0;
-                }
+                const inputDiv = document.createElement('div');
+                inputDiv.className = 'flex items-center space-x-2';
+                inputDiv.innerHTML = `
+                    <label class="w-1/3 text-gray-600">${subject}</label>
+                    <select id="select-${subject}" class="w-1/4 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-400">
+                        <option value="amount">공부량</option>
+                        <option value="time">공부 시간</option>
+                    </select>
+                    <input type="number" id="input-${subject}" placeholder="값" class="w-1/2 p-3 border border-gray-300 rounded-lg">
+                `;
+                targetInputsContainer.appendChild(inputDiv);
+
+                const inputElement = document.getElementById(`input-${subject}`);
+                inputElement.addEventListener('input', updateRemainingAvailableTime);
+                const selectElement = document.getElementById(`select-${subject}`);
+                selectElement.addEventListener('change', updateRemainingAvailableTime);
             });
-            document.getElementById('totalTargetTime').textContent = total.toFixed(1);
         }
         
         function updateTotalAvailableTime() {
-             const startDate = new Date(state.startDate);
+            const startDate = new Date(state.startDate);
             const endDate = new Date(state.endDate);
             const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
             state.totalAvailableMinutes = calculateTotalAvailableMinutes(startDate, totalDays);
-            document.getElementById('totalAvailableTime').textContent = (state.totalAvailableMinutes / 60).toFixed(1);
+            totalAvailableTimeSpan.textContent = (state.totalAvailableMinutes / 60).toFixed(1);
+        }
+
+        function updateRemainingAvailableTime() {
+            let totalTargetMinutes = 0;
+            state.studySubjects.forEach(subject => {
+                const selectElement = document.getElementById(`select-${subject}`);
+                const inputElement = document.getElementById(`input-${subject}`);
+                
+                if (selectElement && inputElement && selectElement.value === 'time') {
+                    const value = parseFloat(inputElement.value);
+                    if (!isNaN(value) && value > 0) {
+                        totalTargetMinutes += value * 60;
+                    }
+                }
+            });
+            state.remainingAvailableMinutes = state.totalAvailableMinutes - totalTargetMinutes;
+            remainingAvailableTimeSpan.textContent = (state.remainingAvailableMinutes / 60).toFixed(1);
         }
 
         // --- Step 5: Plan Generation ---
@@ -928,46 +909,40 @@
             const endDate = new Date(state.endDate);
             const totalDays = Math.floor((endDate - startDate) / (1000 * 60 * 60 * 24)) + 1;
             const plan = [];
+            const targetTimes = {};
+            const targetAmounts = {};
 
-            // Distribute study time based on input mode
             let totalTargetMinutes = 0;
-            if (state.inputMode === 'targetTime') {
-                if (state.targetTimeScope === 'daily') {
-                    for (const subject of state.studySubjects) {
-                        state.targetTimes[subject] = state.targetTimes[subject] * totalDays;
-                    }
+            state.studySubjects.forEach(subject => {
+                const goal = state.targetGoals[subject];
+                if (goal.type === 'time') {
+                    targetTimes[subject] = goal.value * 60;
+                    totalTargetMinutes += targetTimes[subject];
+                } else {
+                    targetAmounts[subject] = goal.value;
                 }
-                for (const subject of state.studySubjects) {
-                    totalTargetMinutes += state.targetTimes[subject];
-                }
-            } else {
-                // Heuristic: Distribute study time evenly or based on a simple priority (e.g., exam subjects)
-                const subjects = state.studySubjects;
-                const examSubjects = state.examSubjects;
-                const studyHoursPerSubject = state.totalAvailableMinutes / (subjects.length * 60);
+            });
 
-                state.targetTimes = {};
-                subjects.forEach(subject => {
-                    const priorityMultiplier = examSubjects.includes(subject) ? 1.2 : 1;
-                    state.targetTimes[subject] = studyHoursPerSubject * priorityMultiplier * 60 / (examSubjects.length > 0 ? 1.1 : 1);
-                });
-                
-                // Re-calculate total target minutes
-                 totalTargetMinutes = 0;
-                 for (const subject of state.studySubjects) {
-                    totalTargetMinutes += state.targetTimes[subject];
+            const amountSubjects = Object.keys(targetAmounts);
+            if (amountSubjects.length > 0) {
+                 const remainingAvailableMinutes = state.totalAvailableMinutes - totalTargetMinutes;
+                 const totalAmountUnits = Object.values(targetAmounts).reduce((sum, value) => sum + value, 0);
+                 if (totalAmountUnits > 0) {
+                    amountSubjects.forEach(subject => {
+                       const ratio = targetAmounts[subject] / totalAmountUnits;
+                       targetTimes[subject] = remainingAvailableMinutes * ratio;
+                       totalTargetMinutes += targetTimes[subject];
+                    });
                  }
             }
-            
-            // Normalize target minutes to fit available time
-            const ratio = state.totalAvailableMinutes / totalTargetMinutes;
-            if (ratio < 1) { // If target time is more than available time
-                for(const subject in state.targetTimes) {
-                    state.targetTimes[subject] *= ratio;
-                }
+
+            if (totalTargetMinutes > state.totalAvailableMinutes) {
+                 const ratio = state.totalAvailableMinutes / totalTargetMinutes;
+                 for(const subject in targetTimes) {
+                     targetTimes[subject] *= ratio;
+                 }
             }
 
-            // Generate daily plan
             for (let i = 0; i < totalDays; i++) {
                 const currentDate = new Date(startDate);
                 currentDate.setDate(startDate.getDate() + i);
@@ -977,7 +952,6 @@
 
                 const dailyUnavailable = state.unavailableTimes.filter(t => t.date === dateString);
                 
-                // Get all available time slots for the day (15 minute intervals)
                 let availableSlots = [];
                 for (let h = 0; h < 24; h++) {
                     for (let m = 0; m < 60; m += 15) {
@@ -991,28 +965,27 @@
                     }
                 }
 
-                // Distribute study subjects to available slots
-                const subjectMinutes = Object.entries(state.targetTimes).sort((a,b) => b[1] - a[1]);
+                const subjectMinutes = Object.entries(targetTimes).sort((a,b) => b[1] - a[1]);
                 const totalDailyAvailableMinutes = availableSlots.length * 15;
                 const subjectDistribution = {};
                 let assignedMinutes = 0;
                 
                 subjectMinutes.forEach(([subject, minutes]) => {
-                    const portion = minutes / totalTargetMinutes;
-                    subjectDistribution[subject] = Math.floor(totalDailyAvailableMinutes * portion);
-                    assignedMinutes += subjectDistribution[subject];
+                    if (totalTargetMinutes > 0) {
+                        const portion = minutes / totalTargetMinutes;
+                        subjectDistribution[subject] = Math.floor(totalDailyAvailableMinutes * portion);
+                        assignedMinutes += subjectDistribution[subject];
+                    }
                 });
 
-                // Correct for rounding errors
                 const remainingMinutes = totalDailyAvailableMinutes - assignedMinutes;
-                if(remainingMinutes > 0) {
+                if(remainingMinutes > 0 && subjectMinutes.length > 0) {
                      subjectDistribution[subjectMinutes[0][0]] += remainingMinutes;
                 }
 
-                // Assign tasks
                 let slotIndex = 0;
                 let lastSubject = null;
-                let breakCounter = 0; // to limit breaks
+                let breakCounter = 0;
                 for (const [subject, minutes] of Object.entries(subjectDistribution)) {
                     let minutesToAssign = minutes;
                     while (minutesToAssign > 0 && slotIndex < availableSlots.length) {
@@ -1020,7 +993,6 @@
                         let end = start;
                         let duration = 0;
 
-                        // Add a break if the previous block was different and long enough
                         if (lastSubject && lastSubject !== subject && minutesToAssign > 30 && breakCounter < 3) {
                            dayPlan.tasks.push({
                                 startTime: start,
@@ -1028,21 +1000,22 @@
                                 activity: '쉬는 시간',
                                 type: '휴식'
                            });
-                           slotIndex += 2; // skip 30 minutes for break
+                           slotIndex += 2;
                            minutesToAssign -= 30;
                            breakCounter++;
                            continue;
                         }
 
-                        while(duration < 60 && slotIndex < availableSlots.length && minutesToAssign > 0) {
+                        let currentBlockDuration = 0;
+                        while(currentBlockDuration < 60 && slotIndex < availableSlots.length && minutesToAssign > 0) {
                              end = availableSlots[slotIndex];
                              slotIndex++;
-                             duration += 15;
+                             currentBlockDuration += 15;
                              minutesToAssign -= 15;
                         }
                         dayPlan.tasks.push({
                             startTime: start,
-                            endTime: availableSlots[slotIndex - 1] || end,
+                            endTime: end,
                             activity: subject,
                             type: '공부'
                         });
@@ -1050,7 +1023,6 @@
                     }
                 }
 
-                // Add unavailable times
                 dailyUnavailable.forEach(t => dayPlan.tasks.push({
                     startTime: t.startTime,
                     endTime: t.endTime,
@@ -1066,15 +1038,27 @@
 
         function groupPlanByWeeks() {
             state.weeklyPlans = {};
+            const startDate = new Date(state.startDate);
             let weekCounter = 1;
             let currentWeek = [];
             state.fullPlan.forEach((day, index) => {
-                currentWeek.push(day);
-                if ((index + 1) % 7 === 0 || index === state.fullPlan.length - 1) {
-                    state.weeklyPlans[`${weekCounter}주차`] = currentWeek;
-                    currentWeek = [];
-                    weekCounter++;
+                const dayDate = new Date(day.date);
+                const dayOfWeek = dayDate.getDay(); // 0 = Sunday, 1 = Monday
+                const startDay = startDate.getDay();
+
+                let weekNumber;
+                if (dayDate.getTime() === startDate.getTime()) {
+                    weekNumber = 1;
+                } else {
+                    const diffDays = Math.floor((dayDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
+                    weekNumber = Math.floor((diffDays + startDay) / 7) + 1;
                 }
+
+                const weekKey = `${weekNumber}주차`;
+                if (!state.weeklyPlans[weekKey]) {
+                    state.weeklyPlans[weekKey] = [];
+                }
+                state.weeklyPlans[weekKey].push(day);
             });
             state.activeWeek = Object.keys(state.weeklyPlans)[0];
         }
@@ -1091,7 +1075,15 @@
                     if (t.date === dateString) {
                         const start = t.startTime.split(':').map(Number);
                         const end = t.endTime.split(':').map(Number);
-                        const duration = (end[0] * 60 + end[1]) - (start[0] * 60 + start[1]);
+                        const startTotalMinutes = start[0] * 60 + start[1];
+                        const endTotalMinutes = end[0] * 60 + end[1];
+                        
+                        let duration = 0;
+                        if (startTotalMinutes > endTotalMinutes) {
+                            duration = (24 * 60 - startTotalMinutes) + endTotalMinutes;
+                        } else {
+                            duration = endTotalMinutes - startTotalMinutes;
+                        }
                         dayMinutes -= duration;
                     }
                 });
@@ -1117,35 +1109,32 @@
         }
 
         function renderWeeklyPlan() {
-            planList.innerHTML = '';
+            weeklyPlanContainer.innerHTML = '';
             const weekPlan = state.weeklyPlans[state.activeWeek];
 
             if (weekPlan && weekPlan.length > 0) {
-                const weekPlanContainer = document.createElement('div');
-                weekPlanContainer.className = 'grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4';
-                
                 weekPlan.forEach(dayPlan => {
                     const dayContainer = document.createElement('div');
                     dayContainer.className = 'bg-white p-4 rounded-xl shadow-md';
                     dayContainer.innerHTML = `
-                        <h4 class="font-semibold text-gray-800">${dayPlan.dayOfWeek} (${dayPlan.date})</h4>
-                        <ul class="mt-2 space-y-1 text-sm">
+                        <h4 class="plan-header font-semibold text-gray-800">${dayPlan.dayOfWeek} (${dayPlan.date.substring(5)})</h4>
+                        <ul class="mt-2 space-y-2">
                             ${dayPlan.tasks.map(task => {
                                 const subjectColorClass = task.type === '공부' ? state.subjectColors[task.activity] : task.type === '휴식' ? 'subject-color-break' : 'bg-gray-200 text-gray-800';
-                                return `<li class="p-2 rounded-md ${subjectColorClass}">
-                                    <strong>${task.startTime} - ${task.endTime}</strong><br/>
-                                    ${task.activity}
+                                return `<li class="plan-item">
+                                    <span class="plan-item-time">${task.startTime.slice(0, 5)} - ${task.endTime.slice(0, 5)}</span>
+                                    <span class="plan-item-activity ${subjectColorClass}">
+                                        ${task.activity}
+                                    </span>
                                 </li>`;
                             }).join('')}
                         </ul>
                     `;
-                    weekPlanContainer.appendChild(dayContainer);
+                    weeklyPlanContainer.appendChild(dayContainer);
                 });
-
-                planList.appendChild(weekPlanContainer);
                 planOutputContainer.classList.remove('centered-content');
             } else {
-                planList.innerHTML = '<p class="no-content">아직 계획이 없습니다. 계획을 추가해 보세요!</p>';
+                weeklyPlanContainer.innerHTML = '<p class="no-content">아직 계획이 없습니다. 계획을 추가해 보세요!</p>';
                 planOutputContainer.classList.add('centered-content');
             }
         }
@@ -1188,7 +1177,6 @@
             const randomIndex = Math.floor(Math.random() * universities.length);
             const selectedUniversity = universities[randomIndex];
             
-            const messageContainer = document.getElementById('motivationalMessageContainer');
             const universityLogo = document.getElementById('universityLogo');
             const universityName = document.getElementById('universityName');
             const universitySlogan = document.getElementById('universitySlogan');
@@ -1199,13 +1187,14 @@
             universityName.textContent = selectedUniversity.name;
             universitySlogan.textContent = selectedUniversity.slogan;
 
-            // Split message by sentences to add line breaks
             const sentences = selectedUniversity.message.split('. ');
             motivationalText.innerHTML = sentences.join('.<br/>');
 
-            messageContainer.classList.remove('hidden');
-            messageContainer.classList.remove('opacity-0');
-            messageContainer.classList.add('opacity-100');
+            showModal('motivationalMessageModal');
+        });
+
+        document.getElementById('closeMotivationalModal').addEventListener('click', () => {
+            hideModal('motivationalMessageModal');
         });
 
     </script>
