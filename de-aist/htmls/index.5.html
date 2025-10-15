@@ -1,0 +1,756 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>정보과제연구 계획서 - 최종 가독성 및 레이아웃 최적화 V4</title>
+    <!-- Tailwind CSS CDN 로드 -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        /* Inter 폰트 사용 (San-serif) */
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+        html { 
+            font-family: 'Inter', 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; 
+            scroll-behavior: smooth; 
+        }
+        
+        /* --- Light Mode Base - High Contrast & Tech Theme (Korean Optimization) --- */
+        body { 
+            background-color: #f8fafc;
+            color: #1f2937;
+            font-size: 1rem; /* text-base */
+            /* 행간을 더 넓게 조정하여 가독성 극대화 */
+            line-height: 1.85; 
+            /* 한글 가독성 및 줄넘김 최적화 (핵심): 한 단어만 아래로 내려가는 현상 방지 */
+            word-break: keep-all; 
+            text-wrap: balance;
+        }
+        
+        /* Heading Styles: 폰트 크기를 유지하되, 굵기 강조 */
+        h2 { font-weight: 900; }
+        h3 { font-weight: 800; }
+        
+        /* --- 1. Custom Keyframes & Animations --- */
+        @keyframes flowData {
+            0% { transform: translateX(0); opacity: 0.5; }
+            50% { transform: translateX(100px); opacity: 1; }
+            100% { transform: translateX(0); opacity: 0.5; }
+        }
+
+        /* --- 2. Section Reveal Animation (Smoother entry) --- */
+        .section-reveal {
+            transition: opacity 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94), transform 1.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            padding: 2.5rem; /* 섹션 패딩 유지 */
+        }
+        .section-reveal:not(.in-view) {
+            opacity: 0;
+            transform: translateY(40px) scale(0.98);
+        }
+
+        /* --- 3. TOC Active Item (High Contrast) --- */
+        .toc-item.active {
+            font-weight: 800; 
+            color: #4f46e5; 
+            background-color: #e0f2f1;
+            box-shadow: inset 5px 0 0 0 #4f46e5; 
+        }
+        
+        /* Key Summary Box (High Contrast Callout) */
+        .key-summary-box {
+            background: #ffffff; 
+            border: 3px solid #4f46e5;
+            color: #1f2937; 
+            padding: 2rem;
+            border-radius: 1.5rem;
+            font-weight: 600;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.08), 0 0 5px rgba(79, 70, 229, 0.15);
+        }
+
+        /* Thematic Accent Box (for definitions) */
+        .thematic-accent-box {
+            background-color: #e0f7fa;
+            border-left: 8px solid #22d3ee;
+            padding: 1.5rem;
+        }
+
+        /* Table Styling (Research Plan - High Contrast & Compact) */
+        .research-plan-table th, .research-plan-table td {
+            /* Padding을 넉넉하게 확보 */
+            padding: 1.25rem 1rem; 
+            border-bottom: 1px solid #e5e7eb;
+            font-size: 0.95rem; 
+            word-break: keep-all; 
+        }
+        .research-plan-table th {
+            font-weight: 900;
+            background-color: #312e81; 
+            color: #ffffff;
+            letter-spacing: 0.05em;
+        }
+        .research-plan-table tr:nth-child(even) {
+            background-color: #f9fafb;
+        }
+        .research-plan-table tr:hover {
+            background-color: #eff6ff;
+            box-shadow: 0 0 5px rgba(79, 70, 229, 0.1); 
+        }
+        
+        /* Custom styles for Flowchart - 박스 크기 확대 */
+        .flow-step-box {
+            /* 박스 내부 여백을 늘리고, 최소 높이를 160px에서 200px로 확대 */
+            @apply p-8 rounded-2xl border-4 shadow-xl text-center transition duration-300 transform hover:scale-[1.02] cursor-default;
+            min-height: 200px; /* 크기 증가 */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+        /* 화살표 컨테이너 여백을 늘림 */
+        .flow-arrow-h {
+            @apply flex items-center justify-center h-full mx-4; 
+        }
+        .flow-arrow-v {
+            @apply flex items-center justify-center w-full my-6; 
+        }
+
+        /* Final Step Box (Replaced .final-result-box for flow consistency) */
+        .final-step-box {
+            @apply p-8 mt-12 rounded-3xl bg-fuchsia-100 border-4 border-fuchsia-500 shadow-2xl shadow-fuchsia-300/50 text-center;
+        }
+    </style>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const sections = document.querySelectorAll('section[data-title]');
+            const tocList = document.getElementById('toc-list');
+            const mainHeader = document.getElementById('main-header');
+            const mobileTocMenu = document.getElementById('mobile-toc-menu');
+            const mobileTocButton = document.getElementById('mobile-toc-button');
+            const progressBar = document.getElementById('scroll-progress-bar');
+            
+            // --- 1. TOC Creation & Scroll Spy ---
+            sections.forEach((section, index) => {
+                const sectionId = `section-${index + 1}`;
+                section.id = sectionId;
+                const title = section.getAttribute('data-title');
+                
+                // Desktop TOC Item
+                const liDesktop = document.createElement('li');
+                liDesktop.innerHTML = `<a href="#${sectionId}" class="toc-item block p-2 transition duration-150 rounded-r-full text-base border-l-4 border-transparent">${title}</a>`;
+                tocList.appendChild(liDesktop);
+
+                // Mobile TOC Item
+                const liMobile = document.createElement('li');
+                liMobile.innerHTML = `<a href="#${sectionId}" class="toc-item block p-3 transition duration-150 rounded-lg text-lg font-medium text-gray-700 hover:bg-gray-200">${title}</a>`;
+                mobileTocMenu.querySelector('ul').appendChild(liMobile);
+            });
+
+            // Smooth Scroll Logic
+            document.querySelectorAll('a[href^="#section-"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    const navHeight = mainHeader.offsetHeight;
+                    if (target) {
+                        window.scrollTo({
+                            top: target.offsetTop - navHeight + 10,
+                            behavior: 'smooth'
+                        });
+                        mobileTocMenu.classList.add('hidden');
+                    }
+                });
+            });
+
+            // Scroll Spy Logic
+            const headerHeightThreshold = 100;
+            const tocObserverOptions = {
+                root: null,
+                rootMargin: `-${headerHeightThreshold}px 0px -50% 0px`,
+                threshold: 0
+            };
+
+            const tocObserver = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    const id = entry.target.id;
+                    const tocLinks = document.querySelectorAll(`a[href="#${id}"]`);
+                    
+                    document.querySelectorAll('.toc-item').forEach(item => item.classList.remove('active'));
+                    
+                    if (entry.isIntersecting) {
+                        tocLinks.forEach(link => link.classList.add('active'));
+                    }
+                });
+            }, tocObserverOptions);
+            sections.forEach(section => tocObserver.observe(section));
+
+
+            // --- 2. Advanced Scroll Effects ---
+            
+            const shrinkThreshold = 60;
+            let lastScrollY = window.scrollY;
+            let isTicking = false;
+
+            const updateScrollEffects = () => {
+                const scrollY = window.scrollY;
+                const documentHeight = document.documentElement.scrollHeight;
+                const viewportHeight = window.innerHeight;
+                
+                // --- A. Header Shrink & Subtle Shadow (Light Mode) ---
+                if (scrollY > shrinkThreshold) {
+                    mainHeader.classList.add('scrolled', 'shadow-xl');
+                    mainHeader.style.paddingTop = '0.75rem';
+                    mainHeader.style.paddingBottom = '0.75rem';
+                } else {
+                    mainHeader.classList.remove('scrolled', 'shadow-xl');
+                    mainHeader.style.paddingTop = '1.25rem';
+                    mainHeader.style.paddingBottom = '1.25rem';
+                }
+
+                // --- B. Scroll Progress Bar ---
+                const scrollPercent = (scrollY / (documentHeight - viewportHeight)) * 100;
+                progressBar.style.width = `${scrollPercent}%`;
+
+                lastScrollY = scrollY;
+                isTicking = false;
+            };
+
+            const handleScroll = () => {
+                if (!isTicking) {
+                    window.requestAnimationFrame(updateScrollEffects);
+                    isTicking = true;
+                }
+            };
+
+            window.addEventListener('scroll', handleScroll);
+            handleScroll(); // Initial call
+
+            // --- 3. Section Fade-In Reveal ---
+            const revealObserver = new IntersectionObserver((entries, observer) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        entry.target.classList.add('in-view', 'opacity-100', 'translate-y-0', 'scale-100');
+                        observer.unobserve(entry.target);
+                    }
+                });
+            }, { rootMargin: '0px 0px -15% 0px' }); // Trigger earlier
+
+            sections.forEach(section => {
+                section.classList.add('section-reveal');
+                revealObserver.observe(section);
+            });
+
+            // --- 4. Mobile TOC Toggle ---
+            mobileTocButton.addEventListener('click', () => {
+                mobileTocMenu.classList.toggle('hidden');
+            });
+        });
+    </script>
+</head>
+
+<body class="min-h-screen">
+
+    <!-- Scroll Progress Bar (Fixed Top) -->
+    <div id="scroll-progress-bar" class="fixed top-0 left-0 h-1 bg-fuchsia-500 z-50 shadow-lg shadow-fuchsia-300/50"></div>
+
+    <!-- Header Section (Sticky, Compact, High Contrast) -->
+    <header id="main-header" class="fixed top-0 w-full z-40 py-5 bg-white border-b border-gray-200 transition-all duration-300" 
+            style="padding-top: 1.25rem; padding-bottom: 1.25rem;">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex justify-between items-center">
+            <!-- Branding / Logo -->
+            <div class="flex items-center space-x-2">
+                <!-- AI Chip Icon -->
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-1 text-indigo-600">
+                    <rect x="2" y="3" width="20" height="18" rx="2" ry="2"/><path d="M8 17h8"/><path d="M8 7h8"/><path d="M8 12h8"/><path d="M12 21v-2"/><path d="M12 5v2"/>
+                </svg>
+                <span class="text-xl font-extrabold text-indigo-700 tracking-wider">AI & COGNITION</span>
+            </div>
+            
+            <!-- Title -->
+            <div class="flex-1 text-center hidden lg:block">
+                 <h1 class="text-2xl font-black text-gray-800 transition duration-300">정보과제연구 계획서 (가독성 최적화 V4)</h1>
+            </div>
+
+            <!-- User/Action placeholder -->
+            <div class="w-1/4 flex justify-end">
+                <a href="#" class="text-sm font-semibold text-fuchsia-600 hover:text-fuchsia-800 transition hidden lg:block">Export Report 🚀</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Hero Section (Visual Impact: AI-Themed Focus) -->
+    <div class="relative w-full overflow-hidden pt-40 pb-28 bg-white border-b-8 border-indigo-500">
+        <!-- Subtle Animated Grid Pattern for Tech Feel -->
+        <div class="absolute inset-0 opacity-10" style="background-image: repeating-linear-gradient(0deg, #e5e7eb 0 1px, transparent 1px 20px), repeating-linear-gradient(90deg, #e5e7eb 0 1px, transparent 1px 20px);"></div>
+        
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10 text-center">
+            <p class="text-lg font-medium text-fuchsia-600 mb-4 tracking-widest uppercase flex items-center justify-center">
+                🧠 Cognitive Data Analysis & AI Prediction 🤖
+            </p>
+            
+            <!-- Main Title with Strong Color Contrast & Forced Line Breaks -->
+            <h2 class="text-5xl sm:text-6xl lg:text-7xl font-black tracking-tight leading-snug text-gray-900">
+                키보드 입력 메트릭스:
+                <br class="lg:hidden">
+                <span class="block text-transparent bg-clip-text bg-gradient-to-r from-indigo-600 to-cyan-500 mt-2">
+                    사용자 감정 & 집중도 예측 AI
+                </span>
+            </h2>
+            <div class="mt-8 max-w-5xl mx-auto text-lg text-gray-600 font-medium">
+                <p>
+                    <strong class="font-extrabold text-indigo-700">키스트로크 다이내믹스(Keystroke Dynamics) 분석을 통해</strong> 학습 및 업무 효율성을 극대화하는
+                </p>
+                <p class="mt-2">
+                    <strong class="font-extrabold text-cyan-600">차세대 인지 과학 기반 AI 모델 구축 프로젝트.</strong>
+                </p>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- Main Content Container Wrapper (Improved Layout) -->
+    <div class="flex max-w-7xl mx-auto pt-10">
+        <!-- Left Column: Table of Contents (Desktop Only) -->
+        <nav id="toc-container" class="hidden lg:block border-r border-gray-200 pr-8">
+            <h3 class="text-sm font-extrabold uppercase text-indigo-600 mb-4 tracking-wider mt-2">PROJECT NAVIGATION</h3>
+            <ul id="toc-list" class="space-y-1">
+                <!-- TOC 항목은 JavaScript로 동적 삽입됨 -->
+            </ul>
+        </nav>
+
+        <!-- Right Column: Report Content (High-Contrast Card Style) -->
+        <main id="report-content" class="w-full lg:w-4/5 lg:pl-10 px-4 sm:px-6 lg:px-8 pb-32">
+            
+            <!-- 1. 연구 주제 Section -->
+            <section data-title="1. 연구 주제 및 목표" class="bg-white rounded-2xl shadow-xl shadow-gray-200 mb-16 border border-gray-100 section-reveal">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-4 border-b-4 border-fuchsia-200 flex items-center">
+                    <!-- Icon: Target -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 mr-6 text-fuchsia-600">
+                        <circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>
+                    </svg>
+                    1. 연구 주제 및 목표: <span class="text-indigo-600">핵심 방향 정의</span>
+                </h2>
+                
+                <!-- Core Topic Box - Strong Accent -->
+                <div class="text-xl font-extrabold p-8 rounded-xl border-l-8 border-indigo-600 shadow-2xl bg-indigo-50/70">
+                    <strong class="text-indigo-700">"⌨️ 키보드 입력 메트릭스 AI 분석을 통한<br>사용자 집중도 및 감정 상태 예측 모델 개발"</strong>
+                </div>
+                
+                <p class="mt-8 text-base text-gray-700 leading-relaxed">
+                    본 연구의 최종 목표는 <strong class="font-extrabold text-indigo-700">키스트로크 다이내믹스(Keystroke Dynamics)</strong>를 활용하여, 사용자의 <strong class="font-extrabold text-fuchsia-600">실시간 인지 부하(Cognitive Load) 및 감정 상태</strong>를 <strong class="font-extrabold text-cyan-600">비침습적</strong>으로 예측하는 AI 모델을 개발하고, 그 활용 방안을 제시하는 것입니다.
+                </p>
+                
+                <h3 class="text-xl font-extrabold text-cyan-600 mt-8 mb-4 border-l-4 border-indigo-500 pl-3 flex items-center">
+                    <span class="text-fuchsia-500 mr-3 text-3xl">🔑</span> 최종 목표 지표 (Success Metrics)
+                </h3>
+                <ul class="list-disc ml-8 text-base space-y-3">
+                    <li class="pl-2">
+                        <strong class="font-extrabold text-indigo-700">모델 정확도:</strong> 개발된 AI 분류 모델의 집중/비집중 상태 예측 <strong class="font-extrabold text-fuchsia-600">Accuracy 80% 이상</strong> 달성.
+                    </li>
+                    <li class="pl-2">
+                        <strong class="font-extrabold text-indigo-700">핵심 변수 식별:</strong> 집중도 변화를 가장 잘 예측하는 키스트로크 <strong class="font-extrabold text-cyan-600">핵심 메트릭스(Feature)</strong> 3가지 이상 도출.
+                    </li>
+                </ul>
+            </section>
+
+            <!-- 2. 서론 Section -->
+            <section data-title="2. 연구의 필요성 및 가치" class="bg-white rounded-2xl shadow-xl shadow-gray-200 mb-16 border border-gray-100 section-reveal">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-4 border-b-4 border-fuchsia-200 flex items-center">
+                    <!-- Icon: Lightbulb -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 mr-6 text-fuchsia-600">
+                        <path d="M15 14c.2-1 .5-2 1-3 1-2 1.5-4 1.5-6.5a7 7 0 0 0-14 0c0 2.5.5 4.5 1.5 6.5 1 1 1.3 2 1.5 3"/>
+                        <path d="M9 18h6"/><path d="M12 22v-4"/><path d="M8 22h8"/>
+                    </svg>
+                    2. 연구의 필요성 및 가치: <span class="text-indigo-600">문제 정의</span>
+                </h2>
+
+                <div class="space-y-8 text-gray-700 text-base leading-relaxed">
+                    <!-- 가. 연구 동기 및 필요성 (Key Summary Box Added) -->
+                    <h3 class="text-xl font-extrabold text-cyan-600 mt-4 mb-5 border-l-4 border-indigo-500 pl-3 flex items-center">
+                        <span class="text-fuchsia-500 mr-3 text-3xl">🤔</span> 연구 동기 및 문제 인식
+                    </h3>
+                    
+                    <div class="key-summary-box text-lg">
+                        <strong class="text-gray-900 text-xl">핵심 문제:</strong> 현재 디지털 학습/업무 환경에서는 <strong class="font-extrabold text-fuchsia-600">사용자의 내부 상태(집중, 감정)</strong>를 객관적이고 <strong class="font-extrabold text-cyan-600">윤리적인 방법</strong>으로 측정할 지표가 매우 부족합니다.
+                        <div class="mt-4 text-sm font-normal text-gray-600 border-t pt-4">
+                            <strong class="text-indigo-700">제안하는 해결책:</strong> 사용자 행동의 기본인 타이핑 데이터를 <strong class="font-extrabold text-indigo-700">비침습적 생체 인식(Behavioral Biometrics)</strong>으로 간주하고, 이를 AI로 해석하여 <strong class="font-extrabold text-fuchsia-600">효율성 극대화</strong>의 기반을 마련합니다.
+                        </div>
+                    </div>
+                    
+                    <h3 class="text-xl font-extrabold text-cyan-600 mt-8 mb-5 border-l-4 border-indigo-500 pl-3 flex items-center">
+                        <span class="text-fuchsia-500 mr-3 text-3xl">💡</span> 사회적 및 학문적 가치
+                    </h3>
+                    <ul class="list-disc ml-8 space-y-3 text-base">
+                        <li class="pl-2"><strong class="font-extrabold text-indigo-700">HCI 혁신:</strong> 인간-컴퓨터 상호작용 분야에 <strong class="font-extrabold text-cyan-600">심리-행동 연관성</strong>에 대한 새로운 정량적 지표를 제공합니다.</li>
+                        <li class="pl-2"><strong class="font-extrabold text-indigo-700">교육 기술(EdTech):</strong> 비대면 시험/수업 환경에서 학생들의 <strong class="font-extrabold text-fuchsia-600">실제 참여도</strong>를 측정하는 윤리적 대안이 될 수 있습니다.</li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 3. 이론적 배경 및 시각화 Section -->
+            <section data-title="3. 이론적 배경 및 핵심 메트릭스" class="bg-white rounded-2xl shadow-xl shadow-gray-200 mb-16 border border-gray-100 section-reveal">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-4 border-b-4 border-fuchsia-200 flex items-center">
+                    <!-- Icon: Book Open -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 mr-6 text-fuchsia-600">
+                        <path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/>
+                        <path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>
+                    </svg>
+                    3. 이론적 배경: <span class="text-indigo-600">키스트로크 역학 분석</span>
+                </h2>
+
+                <div class="space-y-8 text-gray-700 text-base leading-relaxed">
+                    <h3 class="text-xl font-extrabold text-cyan-600 mt-4 mb-5 border-l-4 border-indigo-500 pl-3 flex items-center">
+                        <span class="text-fuchsia-500 mr-3 text-3xl">⌨️</span> 핵심 이론: Keystroke Dynamics 정의
+                    </h3>
+                    
+                    <div class="thematic-accent-box rounded-xl shadow-lg">
+                        <p class="font-medium text-gray-800">
+                            <strong class="font-extrabold text-fuchsia-600">Keystroke Dynamics</strong>는 키를 누르는 속도, 리듬, 패턴 등 <strong class="font-extrabold text-indigo-700">타이핑 습관</strong>을 분석하는 기술입니다. 이는 사용자의 <strong class="font-extrabold text-cyan-600">심리적, 생리적 상태</strong> 변화에 따라 미묘하게 달라지는 '행동 신호'를 담고 있습니다.
+                        </p>
+                    </div>
+
+                    <h3 class="text-xl font-extrabold text-cyan-600 mt-8 mb-5 border-l-4 border-indigo-500 pl-3 flex items-center">
+                        <span class="text-fuchsia-500 mr-3 text-3xl">📈</span> 시각 자료: 핵심 시간 측정 요소 (여백 극대화)
+                    </h3>
+                    
+                    <p class="mb-4 text-gray-800 font-semibold">
+                        집중도 예측에 가장 중요한 두 가지 변수인 <strong class="font-extrabold text-indigo-700">누름 시간(Press Time)</strong>과 <strong class="font-extrabold text-indigo-700">비행 시간(Flight Time)</strong>의 개념도입니다.
+                    </p>
+                    
+                    <!-- SVG Diagram: Keystroke Dynamics (KOREAN TEXT 겹침 FIX - 여백 최대화) -->
+                    <!-- viewBox Y-axis를 300에서 350으로 늘려 수직 여백 극대화 -->
+                    <div class="w-full bg-white p-8 rounded-xl border border-gray-200 shadow-inner">
+                        <svg viewBox="0 0 700 350" xmlns="http://www.w3.org/2000/svg" class="w-full h-auto">
+                            <!-- Time Axis (Y=330) -->
+                            <line x1="50" y1="330" x2="650" y2="330" stroke="#4b5563" stroke-width="2" marker-end="url(#arrowhead)"/>
+                            <text x="650" y="345" font-size="18" fill="#4b5563" text-anchor="end">시간 흐름 (Time)</text>
+                            <defs>
+                                <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="0" refY="3.5" orient="auto">
+                                    <polygon points="0 0, 10 3.5, 0 7" fill="#4b5563" />
+                                </marker>
+                            </defs>
+                            
+                            <!-- Key 1 (A) -->
+                            <rect x="100" y="100" width="80" height="40" rx="5" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+                            <text x="140" y="125" font-size="20" text-anchor="middle" fill="#4f46e5">A</text>
+                            <text x="140" y="185" font-size="16" text-anchor="middle" fill="#374151">키 누름 (Down)</text>
+                            
+                            <!-- Key 2 (B) -->
+                            <rect x="300" y="100" width="80" height="40" rx="5" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+                            <text x="340" y="125" font-size="20" text-anchor="middle" fill="#4f46e5">B</text>
+                            <text x="340" y="185" font-size="16" text-anchor="middle" fill="#374151">키 누름 (Down)</text>
+                            
+                            <!-- Key 3 (C) -->
+                            <rect x="500" y="100" width="80" height="40" rx="5" fill="#e0e7ff" stroke="#4f46e5" stroke-width="2"/>
+                            <text x="540" y="125" font-size="20" text-anchor="middle" fill="#4f46e5">C</text>
+                            <text x="540" y="185" font-size="16" text-anchor="middle" fill="#374151">키 누름 (Down)</text>
+                            
+                            <!-- 1. Press Time (Duration) - Y=295 (시간 축과의 간격 확보) -->
+                            <line x1="100" y1="295" x2="180" y2="295" stroke="#f43f5e" stroke-width="4" stroke-linecap="round"/>
+                            <line x1="300" y1="295" x2="380" y2="295" stroke="#f43f5e" stroke-width="4" stroke-linecap="round"/>
+                            <text x="140" y="280" font-size="16" text-anchor="middle" fill="#f43f5e" font-weight="bold">누름 시간 (Press Time)</text>
+                            
+                            <!-- 2. Flight Time (Delay) - Y=240 (키 누름 텍스트와 누름 시간 텍스트 사이에 충분한 간격 확보) -->
+                            <line x1="180" y1="240" x2="300" y2="240" stroke="#22d3ee" stroke-width="4" stroke-linecap="round"/>
+                            <text x="240" y="230" font-size="16" text-anchor="middle" fill="#22d3ee" font-weight="bold">비행 시간 (Flight Time)</text>
+                            
+                            <!-- 3. Typing (A->B) -->
+                            <line x1="180" y1="150" x2="300" y2="150" stroke="#4f46e5" stroke-width="1" stroke-dasharray="4 4"/>
+                        </svg>
+                    </div>
+
+                    <h4 class="text-lg font-extrabold text-gray-800 mt-6 mb-3 border-b border-gray-200 pb-1">파생 메트릭스 (Feature Engineering)</h4>
+                    <ul class="list-disc ml-8 space-y-3 text-base">
+                        <li class="pl-2">
+                            <strong class="font-extrabold text-fuchsia-600">CV (Coefficient of Variation) of Flight Time:</strong> 비행 시간의 <strong class="font-extrabold text-cyan-600">변동성</strong>은 심리적 불안정, 주의력 분산 등을 강력하게 나타냅니다.
+                        </li>
+                        <li class="pl-2">
+                            <strong class="font-extrabold text-fuchsia-600">수정 패턴(Error Correction Pattern):</strong> 백스페이스(<kbd>Backspace</kbd>) 사용 빈도 및 위치 변화는 <strong class="font-extrabold text-cyan-600">스트레스 또는 피로도</strong>의 직접적인 지표입니다.
+                        </li>
+                    </ul>
+                </div>
+            </section>
+            
+            <!-- 4. AI 모델링 프로세스 Section (Flowchart Visualization Updated to 5-Step Sequential Flow) -->
+            <section data-title="4. AI 모델링 프로세스" class="bg-white rounded-2xl shadow-xl shadow-gray-200 mb-16 border border-gray-100 section-reveal">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-4 border-b-4 border-fuchsia-200 flex items-center">
+                    <!-- Icon: Code -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 mr-6 text-fuchsia-600">
+                        <polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/>
+                    </svg>
+                    4. AI 모델링 프로세스: <span class="text-indigo-600">연구 방법론</span>
+                </h2>
+
+                <h3 class="text-xl font-extrabold text-cyan-600 mt-4 mb-5 border-l-4 border-indigo-500 pl-3 flex items-center">
+                    <span class="text-fuchsia-500 mr-3 text-3xl">🤖</span> AI 예측 모델 개발 흐름도 (5단계 순차 흐름)
+                </h3>
+                
+                <p class="mb-6 text-gray-800 font-semibold text-base">
+                    AI 프로젝트의 표준 방법론인 <strong class="font-extrabold text-indigo-700">5단계 순차적 프로세스</strong>를 시각화했습니다.
+                </p>
+
+                <!-- UPDATED: Increased Text Size and Box Minimum Height via CSS/Tailwind -->
+                <div class="w-full bg-indigo-50 p-10 rounded-2xl border border-indigo-200 shadow-2xl shadow-indigo-200/50">
+                    <!-- Increased gap-x to 16, gap-y to 8 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-x-16 gap-y-8">
+
+                        <!-- Row 1, Col 1: Problem Definition (1단계) -->
+                        <div class="flow-step-box border-indigo-500 bg-white relative">
+                            <span class="text-5xl mb-2 text-indigo-600 font-black">1</span> <!-- text-4xl -> text-5xl, font-black 추가 -->
+                            <h4 class="text-2xl font-extrabold text-gray-900">문제 정의 및 목표 설정</h4> <!-- text-xl -> text-2xl -->
+                            <p class="text-base text-gray-600 mt-1">(Problem Definition & Goal Setting)</p> <!-- text-sm -> text-base -->
+                            <!-- Horizontal Arrow -->
+                            <div class="absolute right-[-4rem] top-1/2 transform -translate-y-1/2 hidden md:block flow-arrow-h">
+                                <svg class="w-10 h-10 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </div>
+                        </div>
+
+                        <!-- Row 1, Col 2: Data Collection (2단계) -->
+                        <div class="flow-step-box border-cyan-500 bg-white">
+                            <span class="text-5xl mb-2 text-cyan-600 font-black">2</span>
+                            <h4 class="text-2xl font-extrabold text-gray-900">데이터 수집 및 전처리</h4>
+                            <p class="text-base text-gray-600 mt-1">(Data Collection & Preprocessing)</p>
+                        </div>
+
+                        <!-- Vertical Arrow -->
+                        <div class="md:col-span-2 flow-arrow-v">
+                            <svg class="w-10 h-10 text-indigo-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                        </div>
+
+                        <!-- Row 2, Col 1: Model Training (3단계) -->
+                        <div class="flow-step-box border-fuchsia-500 bg-white relative">
+                            <span class="text-5xl mb-2 text-fuchsia-600 font-black">3</span>
+                            <h4 class="text-2xl font-extrabold text-gray-900">모델 선택 및 훈련</h4>
+                            <p class="text-base text-gray-600 mt-1">(Model Selection & Training)</p>
+                            <!-- Horizontal Arrow -->
+                            <div class="absolute right-[-4rem] top-1/2 transform -translate-y-1/2 hidden md:block flow-arrow-h">
+                                <svg class="w-10 h-10 text-fuchsia-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+                            </div>
+                        </div>
+
+                        <!-- Row 2, Col 2: Evaluation (4단계) -->
+                        <div class="flow-step-box border-teal-500 bg-white">
+                            <span class="text-5xl mb-2 text-teal-600 font-black">4</span>
+                            <h4 class="text-2xl font-extrabold text-gray-900">모델 평가 및 검증</h4>
+                            <p class="text-base text-gray-600 mt-1">(Evaluation & Validation)</p>
+                        </div>
+                    </div>
+
+                    <!-- Vertical Arrow to Final Step (Step 5) -->
+                    <div class="flow-arrow-v">
+                        <svg class="w-10 h-10 text-fuchsia-600" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M19 12l-7 7-7-7"/></svg>
+                    </div>
+
+                    <!-- Step 5: Deployment & Monitoring - Using a standard box style for flow consistency -->
+                    <div class="flow-step-box border-fuchsia-500 bg-fuchsia-50 text-center mx-auto max-w-xl">
+                        <span class="text-5xl font-black text-fuchsia-700 block mb-3">5. 최종 단계</span>
+                        <h4 class="text-3xl font-extrabold text-gray-900 leading-tight">
+                            <strong class="text-indigo-600">모델 배포 및 모니터링</strong>
+                        </h4>
+                        <p class="text-lg mt-2 text-gray-700 font-medium">
+                            운영 환경에 배포하고 성능 저하를 지속적으로 관리합니다.
+                        </p>
+                    </div>
+
+                </div>
+            </section>
+            
+            
+            <!-- 5. 연구 내용 및 방법 (Detailed Table) Section -->
+            <section data-title="5. 연구 상세 활동 계획" class="bg-white rounded-2xl shadow-xl shadow-gray-200 mb-16 border border-gray-100 section-reveal">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-4 border-b-4 border-fuchsia-200 flex items-center">
+                    <!-- Icon: Beaker -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 mr-6 text-fuchsia-600">
+                        <path d="M4.5 4h15"/><path d="M7 13v-3a5 5 0 0 1 10 0v3"/>
+                        <path d="M12 2v20"/><path d="M17.5 5.5l2 3.5"/><path d="M4.5 5.5l2 3.5"/>
+                        <path d="M12 16a2 2 0 1 0 0-4 2 2 0 0 0 0 4Z"/><path d="M6 21h12"/>
+                    </svg>
+                    5. 연구 상세 활동 계획: <span class="text-indigo-600">단계별 실행 전략</span>
+                </h2>
+
+                <div class="overflow-x-auto rounded-xl border border-gray-300 shadow-2xl research-plan-table">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="rounded-t-xl overflow-hidden">
+                                <th class="p-4 text-center w-[10%] rounded-tl-xl bg-indigo-700">주차</th>
+                                <th class="p-4 w-[25%] bg-indigo-700">활동 목표</th>
+                                <th class="p-4 w-[55%] bg-indigo-700">핵심 내용 및 실험 프로토콜</th>
+                                <th class="p-4 w-[10%] rounded-tr-xl bg-indigo-700">결과물</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Table Cell Padding Increased via CSS -->
+                            <tr>
+                                <td class="text-center font-extrabold text-fuchsia-600">1주차</td>
+                                <td class="text-gray-800 font-semibold">데이터 로깅<br>환경 구축</td>
+                                <td class="text-gray-700">
+                                    <strong class="font-extrabold text-cyan-600">1. 스크립트 개발:</strong> Python/JS 기반 타이핑 로거 스크립트 개발.<br>
+                                    <strong class="font-extrabold text-cyan-600">2. 메트릭스 정의:</strong> Press Time, Flight Time, Key Code, Error Count 등을 초 단위로 기록하는 환경 구축 완료.
+                                </td>
+                                <td class="text-gray-600 font-medium">로깅<br>스크립트</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-extrabold text-fuchsia-600">2주차</td>
+                                <td class="text-gray-800 font-semibold">통제 실험 및<br>원천 데이터 확보</td>
+                                <td class="text-gray-700">
+                                    <strong class="font-extrabold text-cyan-600">1. 실험 수행:</strong> Phase I (집중) & Phase II (비집중/스트레스) 통제 실험 수행.<br>
+                                    <strong class="font-extrabold text-cyan-600">2. 데이터 수집:</strong> 참가자 12명 대상 타이핑 과제 수행 및 데이터 수집.<br>
+                                    <strong class="font-extrabold text-cyan-600">3. 라벨링:</strong> 수집된 데이터에 집중도 라벨링 완료.
+                                </td>
+                                <td class="text-gray-600 font-medium">라벨링된<br>CSV 데이터셋</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-extrabold text-fuchsia-600">3주차</td>
+                                <td class="text-gray-800 font-semibold">AI 모델 훈련 및<br>성능 평가</td>
+                                <td class="text-gray-700">
+                                    <strong class="font-extrabold text-cyan-600">1. 특징 공학:</strong> Feature Engineering을 통한 변수 추출 (CV 등).<br>
+                                    <strong class="font-extrabold text-cyan-600">2. 모델 훈련:</strong> SVM, Random Forest 모델 훈련 및 교차 검증(Cross-Validation) 실시.<br>
+                                    <strong class="font-extrabold text-cyan-600">3. 최적 모델 선정:</strong> 성능 지표를 기반으로 <strong class="font-extrabold text-fuchsia-600">최적 모델 선정</strong>.
+                                </td>
+                                <td class="text-gray-600 font-medium">훈련된<br>AI 모델 파일</td>
+                            </tr>
+                            <tr>
+                                <td class="text-center font-extrabold text-fuchsia-600">4주차</td>
+                                <td class="text-gray-800 font-semibold">결과 분석 및<br>활용 시스템 제안</td>
+                                <td class="text-gray-700">
+                                    <strong class="font-extrabold text-cyan-600">1. 변수 분석:</strong> 최적 모델의 <strong class="font-extrabold text-fuchsia-600">핵심 기여 변수 (Feature Importance) 분석</strong>.<br>
+                                    <strong class="font-extrabold text-cyan-600">2. 모의 시연:</strong> 집중도 경고 피드백 시스템의 모의 시연(Mock Demo) 프로토타입 개발.<br>
+                                    <strong class="font-extrabold text-cyan-600">3. 보고서 작성:</strong> 연구 결과 정리 및 최종 보고서 작성.
+                                </td>
+                                <td class="text-gray-600 font-medium">최종 보고서<br>및 발표 자료</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+
+            <!-- 6. 기대 효과 및 활용 방안 Section (Visualization Added) -->
+            <section data-title="6. 기대 효과 및 미래 활용" class="bg-white rounded-2xl shadow-xl shadow-gray-200 mb-16 border border-gray-100 section-reveal">
+                <h2 class="text-3xl font-extrabold text-gray-900 mb-8 pb-4 border-b-4 border-fuchsia-200 flex items-center">
+                    <!-- Icon: Zap (Lightning) -->
+                    <svg xmlns="http://www.w3.org/2000/svg" width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 mr-6 text-fuchsia-600">
+                        <polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>
+                    </svg>
+                    6. 기대 효과: <span class="text-indigo-600">미래 기여도</span>
+                </h2>
+
+                <div class="space-y-8 text-gray-700 text-base leading-relaxed">
+                    <p class="text-lg font-extrabold text-gray-800">
+                        본 연구는 단순히 집중도를 예측하는 것을 넘어, <strong class="font-extrabold text-indigo-700">개인의 상태를 이해하고 개선하는 데 기여</strong>하는 혁신적인 솔루션을 제안합니다.
+                    </p>
+
+                    <!-- Key Benefit Visualization -->
+                    <div class="p-6 bg-gray-50 rounded-xl border-2 border-indigo-100 shadow-inner">
+                        <h4 class="text-xl font-extrabold text-indigo-800 mb-4 border-b pb-2">활용 분야 확장 로드맵</h4>
+                        <div class="flex flex-col sm:flex-row justify-between items-center text-center space-y-4 sm:space-y-0 sm:space-x-6">
+                            
+                            <!-- Box 1: Immediate - Adjusted spacing -->
+                            <div class="flex-1 p-4 rounded-xl bg-indigo-200/50 hover:bg-indigo-200 transition duration-300 w-full">
+                                <span class="text-4xl block mb-2">🧑‍💻</span>
+                                <p class="text-lg font-extrabold text-indigo-800">1단계 (즉시)</p>
+                                <p class="text-sm text-gray-700 font-medium">개인 학습/업무 <strong class="font-extrabold">효율 측정</strong></p>
+                            </div>
+
+                            <!-- Arrow -->
+                            <div class="text-3xl text-indigo-400 hidden sm:block mx-2">→</div>
+                            <div class="text-3xl text-indigo-400 sm:hidden">↓</div>
+                            
+                            <!-- Box 2: Near Future - Adjusted spacing -->
+                            <div class="flex-1 p-4 rounded-xl bg-cyan-200/50 hover:bg-cyan-200 transition duration-300 w-full">
+                                <span class="text-4xl block mb-2">🏥</span>
+                                <p class="text-lg font-extrabold text-cyan-800">2단계 (단기)</p>
+                                <p class="text-sm text-gray-700 font-medium">인지 부하 기반 <strong class="font-extrabold">치료/진단 보조</strong></p>
+                            </div>
+                            
+                            <!-- Arrow -->
+                            <div class="text-3xl text-indigo-400 hidden sm:block mx-2">→</div>
+                            <div class="text-3xl text-indigo-400 sm:hidden">↓</div>
+
+                            <!-- Box 3: Long Term - Adjusted spacing -->
+                            <div class="flex-1 p-4 rounded-xl bg-fuchsia-200/50 hover:bg-fuchsia-200 transition duration-300 w-full">
+                                <span class="text-4xl block mb-2">🌍</span>
+                                <p class="text-lg font-extrabold text-fuchsia-800">3단계 (장기)</p>
+                                <p class="text-sm text-gray-700 font-medium">대규모 심리 상태 <strong class="font-extrabold">동향 분석</strong></p>
+                            </div>
+                        </div>
+                    </div>
+
+
+                    <div class="grid lg:grid-cols-3 gap-8 mt-8"> <!-- gap-8로 간격 확대 -->
+                        <!-- 1. 학습 효율 증대 (개인) -->
+                        <div class="p-6 rounded-xl bg-indigo-50 border-t-4 border-indigo-600 shadow-lg hover:shadow-indigo-500/30 transition duration-300">
+                            <h4 class="text-xl font-extrabold text-indigo-700 mb-3 flex items-center">
+                                <span class="text-3xl mr-3">🎯</span> <!-- mr-3으로 여백 확대 -->
+                                개인 맞춤형<br>학습 피드백
+                            </h4>
+                            <p class="text-base text-gray-800 leading-normal">
+                                집중력 저하 시 <strong class="font-extrabold text-fuchsia-600">휴식 타이머나 과제 변경</strong>을 추천하는 <strong class="font-extrabold text-cyan-600">자동화된 코칭 시스템</strong>의 기반 자료로 활용됩니다.
+                            </p>
+                        </div>
+
+                        <!-- 2. 비대면 환경 모니터링 (사회) -->
+                        <div class="p-6 rounded-xl bg-cyan-50 border-t-4 border-cyan-600 shadow-lg hover:shadow-cyan-500/30 transition duration-300">
+                            <h4 class="text-xl font-extrabold text-cyan-700 mb-3 flex items-center">
+                                <span class="text-3xl mr-3">🛡️</span> <!-- mr-3으로 여백 확대 -->
+                                윤리적 원격<br>평가 대안
+                            </h4>
+                            <p class="text-base text-gray-800 leading-normal">
+                                얼굴 인식이나 웹캠 모니터링 없이 <strong class="font-extrabold text-fuchsia-600">행동 데이터</strong>만을 사용하여 <strong class="font-extrabold text-cyan-600">사생활 침해 위험을 최소화</strong>한 모니터링 지표를 제공합니다.
+                            </p>
+                        </div>
+                        
+                        <!-- 3. AI 윤리 탐구 (정보 과학) -->
+                        <div class="p-6 rounded-xl bg-fuchsia-50 border-t-4 border-fuchsia-600 shadow-lg hover:shadow-fuchsia-500/30 transition duration-300">
+                            <h4 class="text-xl font-extrabold text-fuchsia-700 mb-3 flex items-center">
+                                <span class="text-3xl mr-3">🔭</span> <!-- mr-3으로 여백 확대 -->
+                                정보과학 심화<br>탐구 기회
+                            </h4>
+                            <p class="text-base text-gray-800 leading-normal">
+                                복잡한 <strong class="font-extrabold text-fuchsia-600">시계열 데이터 처리(Time Series)</strong>와 <strong class="font-extrabold text-cyan-600">이진 분류(Binary Classification)</strong> 모델 개발 경험을 통해 AI 개발의 전 과정을 체득합니다.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </section>
+            
+        </main>
+    </div>
+
+    <!-- Floating Mobile TOC Button (FAB - High Contrast) -->
+    <div id="mobile-toc-fab" class="lg:hidden fixed bottom-6 right-6 p-4 rounded-full bg-indigo-600 text-white shadow-xl cursor-pointer transition duration-200 hover:bg-indigo-700">
+        <button id="mobile-toc-button" aria-label="Toggle Table of Contents">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="4" y1="12" x2="20" y2="12"/>
+                <line x1="4" y1="6" x2="20" y2="6"/>
+                <line x1="4" y1="18" x2="20" y2="18"/>
+            </svg>
+        </button>
+    </div>
+
+    <!-- Mobile TOC Menu (Light Mode) -->
+    <div id="mobile-toc-menu" class="hidden fixed inset-0 bg-white/95 z-40 p-6 backdrop-blur-md lg:hidden">
+        <button onclick="document.getElementById('mobile-toc-menu').classList.add('hidden')" class="absolute top-4 right-4 text-gray-500 hover:text-indigo-600">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="18" y1="6" x2="6" y2="18"/>
+                <line x1="6" y1="6" x2="18" y2="18"/>
+            </svg>
+        </button>
+        <h3 class="text-xl font-extrabold text-indigo-600 mb-6 border-b border-gray-200 pb-3">전체 목차</h3>
+        <ul class="space-y-3">
+            <!-- Mobile TOC items inserted here by JS -->
+        </ul>
+    </div>
+
+
+    <!-- Footer Section -->
+    <footer class="bg-gradient-to-br from-indigo-50 to-gray-100 border-t-4 border-fuchsia-300 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
+            <p class="text-md text-gray-600 italic mt-2">
+                "디지털 행동 데이터는 인간의 인지 상태를 이해하는 새로운 언어입니다."
+            </p>
+            <p class="text-xs text-gray-500 mt-4">
+                © 2025 AI x HCI Research Project. All rights reserved.
+            </p>
+        </div>
+    </footer>
+
+</body>
+</html>
