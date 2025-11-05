@@ -24,7 +24,9 @@ PAGE_NAME_MAPPING: Dict[str, str] = {
     "index2.html": "실시간 재난 대응 대시보드",
     "index3.html": "연금술사 카드게임 시연",
     "index4.html": "AI 주간 학습 계획 생성기",
-    "index5.html": "키보드 입력 메트릭스 AI 분석"
+    "index5.html": "키보드 입력 메트릭스 AI 분석",
+    # [수정됨] index6.html 파일과 프로젝트 이름을 추가했습니다.
+    "index6.html": "정보과제연구 최종 보고서 (데이터 시뮬레이션 추가)"
 }
 
 # --- 파일 존재 여부 확인 및 목록 구성 ---
@@ -83,7 +85,7 @@ else:
                 st.header(f"🖥️ {selected_page_name}")
                 
                 # HTML 코드를 Streamlit 컴포넌트로 렌더링합니다.
-                components.html(html_code, height=1200, scrolling=True) 
+                components.html(html_code, height=1200, scrolling=True)
             except Exception as e:
                 st.exception(f"❌ 파일을 읽거나 렌더링하는 도중 오류가 발생했습니다: {e}")
         else:
